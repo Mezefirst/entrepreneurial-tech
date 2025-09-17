@@ -1052,28 +1052,41 @@ function App() {
 
             <div className="max-w-2xl mx-auto space-y-6">
               <div className="grid md:grid-cols-3 gap-4">
-                <Card className="text-center hover-lift transition-all duration-200">
+                <Card className="text-center hover-lift transition-all duration-200 cursor-pointer" onClick={() => window.open('mailto:zewge@student.chalmers.se', '_blank')}>
                   <CardContent className="pt-6">
                     <EnvelopeSimple size={32} className="mx-auto mb-3 text-primary" />
                     <h3 className="font-semibold mb-2">Email</h3>
-                    <p className="text-muted-foreground text-sm">zewge@student.chalmers.se</p>
-                    <p className="text-muted-foreground text-xs">mazefirst@gmail.com</p>
+                    <p className="text-muted-foreground text-sm hover:text-primary transition-colors">zewge@student.chalmers.se</p>
+                    <p className="text-muted-foreground text-xs hover:text-primary transition-colors">mazefirst@gmail.com</p>
+                    <Button size="sm" variant="ghost" className="mt-2 text-xs">
+                      Send Email
+                    </Button>
                   </CardContent>
                 </Card>
 
-                <Card className="text-center hover-lift transition-all duration-200">
+                <Card className="text-center hover-lift transition-all duration-200 cursor-pointer" onClick={() => window.open('https://linkedin.com/in/mesfinasfaw-zewge', '_blank')}>
                   <CardContent className="pt-6">
                     <LinkedinLogo size={32} className="mx-auto mb-3 text-primary" />
                     <h3 className="font-semibold mb-2">LinkedIn</h3>
-                    <p className="text-muted-foreground text-sm">Connect professionally</p>
+                    <p className="text-muted-foreground text-sm hover:text-primary transition-colors">Connect professionally</p>
+                    <Button size="sm" variant="ghost" className="mt-2 text-xs">
+                      <LinkedinLogo size={14} className="mr-1" />
+                      View Profile
+                    </Button>
                   </CardContent>
                 </Card>
 
-                <Card className="text-center hover-lift transition-all duration-200">
+                <Card className="text-center hover-lift transition-all duration-200 cursor-pointer" onClick={() => window.open(`https://github.com/${githubUsername || 'your-username'}`, '_blank')}>
                   <CardContent className="pt-6">
                     <GithubLogo size={32} className="mx-auto mb-3 text-primary" />
                     <h3 className="font-semibold mb-2">GitHub</h3>
-                    <p className="text-muted-foreground text-sm">View my code</p>
+                    <p className="text-muted-foreground text-sm hover:text-primary transition-colors">
+                      {githubUsername ? `@${githubUsername}` : 'View my repositories'}
+                    </p>
+                    <Button size="sm" variant="ghost" className="mt-2 text-xs">
+                      <GithubLogo size={14} className="mr-1" />
+                      View Repositories
+                    </Button>
                   </CardContent>
                 </Card>
               </div>
