@@ -47,7 +47,9 @@ import {
   Clock,
   BookOpen,
   FileText,
-  PaperPlane
+  PaperPlane,
+  Bell,
+  Users
 } from "@phosphor-icons/react"
 
 interface GitHubRepo {
@@ -840,6 +842,85 @@ Success requires a comprehensive approach encompassing process optimization, tec
   })
   const [isSubmittingContact, setIsSubmittingContact] = useState(false)
 
+  // Newsletter subscription state
+  const [isNewsletterDialogOpen, setIsNewsletterDialogOpen] = useState(false)
+  const [newsletterForm, setNewsletterForm] = useState({
+    email: '',
+    name: '',
+    interests: [] as string[]
+  })
+  const [isSubmittingNewsletter, setIsSubmittingNewsletter] = useState(false)
+  const [newsletterSuccess, setNewsletterSuccess] = useState(false)
+  const [subscribers, setSubscribers] = useKV<Array<{email: string, name: string, interests: string[], subscribedAt: string}>>("newsletter-subscribers", [])
+
+  // Newsletter subscription functions
+  const openNewsletterDialog = () => {
+    setNewsletterForm({
+      email: '',
+      name: '',
+      interests: []
+    })
+    setNewsletterSuccess(false)
+    setIsNewsletterDialogOpen(true)
+  }
+
+  const handleInterestToggle = (interest: string) => {
+    setNewsletterForm(prev => ({
+      ...prev,
+      interests: prev.interests.includes(interest)
+        ? prev.interests.filter(i => i !== interest)
+        : [...prev.interests, interest]
+    }))
+  }
+
+  const submitNewsletterSubscription = async () => {
+    if (!newsletterForm.email.trim()) {
+      return
+    }
+
+    setIsSubmittingNewsletter(true)
+
+    try {
+      // Check if email already exists
+      const existingSubscriber = (subscribers || []).find(sub => sub.email.toLowerCase() === newsletterForm.email.toLowerCase())
+      
+      if (existingSubscriber) {
+        // Update existing subscriber's interests
+        setSubscribers(currentSubscribers => 
+          (currentSubscribers || []).map(sub => 
+            sub.email.toLowerCase() === newsletterForm.email.toLowerCase()
+              ? { ...sub, name: newsletterForm.name || sub.name, interests: newsletterForm.interests, subscribedAt: sub.subscribedAt }
+              : sub
+          )
+        )
+      } else {
+        // Add new subscriber
+        const newSubscriber = {
+          email: newsletterForm.email.trim(),
+          name: newsletterForm.name.trim() || 'Anonymous Subscriber',
+          interests: newsletterForm.interests,
+          subscribedAt: new Date().toISOString()
+        }
+        
+        setSubscribers(currentSubscribers => [...(currentSubscribers || []), newSubscriber])
+      }
+
+      // Show success state
+      setNewsletterSuccess(true)
+      
+      // Auto-close after success
+      setTimeout(() => {
+        setIsNewsletterDialogOpen(false)
+        setNewsletterSuccess(false)
+      }, 2000)
+      
+    } catch (error) {
+      console.error('Error subscribing to newsletter:', error)
+    } finally {
+      setIsSubmittingNewsletter(false)
+    }
+  }
+
   // Contact request functions
   const openContactDialog = (type?: 'project' | 'article', itemTitle?: string) => {
     setContactForm({
@@ -1335,6 +1416,137 @@ Sent from your portfolio website
       </div>
     )
   }
+
+  // Newsletter dialog component
+  const NewsletterDialog = () => (
+    <Dialog open={isNewsletterDialogOpen} onOpenChange={setIsNewsletterDialogOpen}>
+      <DialogContent className="max-w-md">
+        <DialogHeader>
+          <DialogTitle className="flex items-center gap-2">
+            <Bell size={20} />
+            Subscribe to Newsletter
+          </DialogTitle>
+          <DialogDescription>
+            Get notified about new research publications, project updates, and engineering insights
+          </DialogDescription>
+        </DialogHeader>
+        
+        {newsletterSuccess ? (
+          <div className="text-center py-6 space-y-4">
+            <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto">
+              <Check size={32} className="text-green-600" />
+            </div>
+            <div>
+              <h3 className="font-semibold text-lg text-green-800">Successfully Subscribed!</h3>
+              <p className="text-sm text-muted-foreground">
+                Thank you for subscribing. You'll receive updates about new research and projects.
+              </p>
+            </div>
+          </div>
+        ) : (
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <label htmlFor="newsletter-email" className="text-sm font-medium">Email Address *</label>
+              <Input
+                id="newsletter-email"
+                type="email"
+                placeholder="your.email@example.com"
+                value={newsletterForm.email}
+                onChange={(e) => setNewsletterForm(prev => ({ ...prev, email: e.target.value }))}
+              />
+            </div>
+            
+            <div className="space-y-2">
+              <label htmlFor="newsletter-name" className="text-sm font-medium">Name (Optional)</label>
+              <Input
+                id="newsletter-name"
+                placeholder="Your name"
+                value={newsletterForm.name}
+                onChange={(e) => setNewsletterForm(prev => ({ ...prev, name: e.target.value }))}
+              />
+            </div>
+            
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Areas of Interest</label>
+              <div className="grid grid-cols-2 gap-2">
+                {[
+                  'Materials Science',
+                  'AI & Machine Learning',
+                  'Sustainable Manufacturing',
+                  'Additive Manufacturing',
+                  'Research Publications',
+                  'Software Projects',
+                  'Aerospace Engineering',
+                  'Automotive Industry'
+                ].map((interest) => (
+                  <div key={interest} className="flex items-center space-x-2">
+                    <Checkbox
+                      id={`interest-${interest}`}
+                      checked={newsletterForm.interests.includes(interest)}
+                      onCheckedChange={() => handleInterestToggle(interest)}
+                    />
+                    <label 
+                      htmlFor={`interest-${interest}`} 
+                      className="text-xs cursor-pointer"
+                    >
+                      {interest}
+                    </label>
+                  </div>
+                ))}
+              </div>
+              <p className="text-xs text-muted-foreground">
+                Select topics you're interested in to receive relevant updates
+              </p>
+            </div>
+            
+            <div className="bg-muted/30 rounded-lg p-3">
+              <div className="flex items-start gap-2">
+                <Bell size={16} className="text-primary mt-0.5" />
+                <div className="text-xs text-muted-foreground">
+                  <p className="font-medium mb-1">What you'll receive:</p>
+                  <ul className="space-y-1 text-xs list-disc list-inside">
+                    <li>New research paper publications</li>
+                    <li>Project updates and releases</li>
+                    <li>Engineering insights and tutorials</li>
+                    <li>Industry collaboration opportunities</li>
+                  </ul>
+                  <p className="mt-2 text-xs">
+                    We respect your privacy. Unsubscribe anytime. No spam, ever.
+                  </p>
+                </div>
+              </div>
+            </div>
+            
+            <div className="flex justify-end gap-2">
+              <Button 
+                variant="outline" 
+                onClick={() => setIsNewsletterDialogOpen(false)}
+                disabled={isSubmittingNewsletter}
+              >
+                Cancel
+              </Button>
+              <Button 
+                onClick={submitNewsletterSubscription}
+                disabled={!newsletterForm.email.trim() || isSubmittingNewsletter}
+              >
+                {isSubmittingNewsletter ? (
+                  <>
+                    <SpinnerGap size={16} className="mr-2 animate-spin" />
+                    Subscribing...
+                  </>
+                ) : (
+                  <>
+                    <Bell size={16} className="mr-2" />
+                    Subscribe
+                  </>
+                )}
+              </Button>
+            </div>
+          </div>
+        )}
+      </DialogContent>
+    </Dialog>
+  )
 
   // Contact dialog component
   const ContactDialog = () => (
@@ -1934,6 +2146,15 @@ Sent from your portfolio website
               >
                 Contact
               </button>
+              <Button
+                size="sm"
+                variant="ghost"
+                onClick={openNewsletterDialog}
+                className="text-muted-foreground hover:text-primary"
+              >
+                <Bell size={16} className="mr-1" />
+                Newsletter
+              </Button>
             </nav>
           </div>
         </div>
@@ -2080,6 +2301,29 @@ Sent from your portfolio website
                     I'm passionate about developing sustainable solutions through AI technology integration and committed 
                     to delivering quality-driven solutions that comply with industry standards and regulations.
                   </p>
+                </CardContent>
+              </Card>
+
+              {/* Newsletter subscription CTA in About section */}
+              <Card className="border-2 border-dashed border-accent/30 hover:border-accent/50 transition-colors">
+                <CardContent className="pt-6 pb-6">
+                  <div className="text-center space-y-4">
+                    <div className="flex items-center justify-center gap-2">
+                      <Bell size={20} className="text-accent" />
+                      <h3 className="font-heading text-lg font-semibold">Stay Updated</h3>
+                    </div>
+                    <p className="text-muted-foreground max-w-md mx-auto">
+                      Join {(subscribers || []).length > 0 ? `${(subscribers || []).length} other ` : ''}professionals getting updates 
+                      on materials science research, AI integration projects, and sustainable engineering solutions.
+                    </p>
+                    <Button 
+                      onClick={openNewsletterDialog}
+                      className="bg-accent hover:bg-accent/90 text-accent-foreground"
+                    >
+                      <Bell size={16} className="mr-2" />
+                      Subscribe to Updates
+                    </Button>
+                  </div>
                 </CardContent>
               </Card>
 
@@ -2798,6 +3042,31 @@ Sent from your portfolio website
                 Research focus areas include materials engineering, AI-integrated sustainable manufacturing, 
                 and innovative solutions for engineering challenges in aerospace and automotive industries.
               </p>
+              
+              {/* Newsletter subscription CTA */}
+              <div className="max-w-md mx-auto">
+                <Card className="border-2 border-dashed border-primary/30 hover:border-primary/50 transition-colors">
+                  <CardContent className="pt-4 pb-4">
+                    <div className="text-center space-y-3">
+                      <Bell size={24} className="mx-auto text-primary" />
+                      <div>
+                        <h4 className="font-semibold text-sm">Stay Updated</h4>
+                        <p className="text-xs text-muted-foreground">
+                          Get notified about new research publications and project updates
+                        </p>
+                      </div>
+                      <Button 
+                        size="sm" 
+                        onClick={openNewsletterDialog}
+                        className="w-full"
+                      >
+                        <Bell size={14} className="mr-2" />
+                        Subscribe to Newsletter
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
             </div>
 
             <div className="flex flex-col sm:flex-row gap-4 max-w-2xl mx-auto">
@@ -3030,6 +3299,52 @@ Sent from your portfolio website
 
               <Separator />
 
+              {/* Newsletter subscription section */}
+              <div className="text-center space-y-4">
+                <h3 className="font-heading text-xl font-semibold">Stay Connected</h3>
+                <p className="text-muted-foreground">
+                  Subscribe to receive updates about new research publications, project releases, and engineering insights.
+                </p>
+                <div className="flex flex-col sm:flex-row gap-4 items-center justify-center">
+                  <Button 
+                    onClick={openNewsletterDialog}
+                    variant="outline"
+                    className="min-w-48"
+                  >
+                    <Bell size={16} className="mr-2" />
+                    Subscribe to Newsletter
+                  </Button>
+                  <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                    <div className="flex items-center gap-1">
+                      <Users size={14} />
+                      <span>{(subscribers || []).length} subscribers</span>
+                    </div>
+                  </div>
+                </div>
+                
+                {/* Newsletter preview */}
+                <div className="max-w-lg mx-auto">
+                  <Card className="bg-muted/30">
+                    <CardContent className="pt-4 pb-4">
+                      <div className="text-xs text-muted-foreground space-y-2">
+                        <div className="flex items-center gap-2 justify-center">
+                          <Bell size={12} />
+                          <span className="font-medium">Recent updates include:</span>
+                        </div>
+                        <ul className="text-left space-y-1 list-disc list-inside">
+                          <li>New research on sustainable fasteners in automotive industry</li>
+                          <li>AI integration projects for materials characterization</li>
+                          <li>Additive manufacturing applications and case studies</li>
+                          <li>Collaboration opportunities and industry insights</li>
+                        </ul>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </div>
+              </div>
+
+              <Separator />
+
               <div className="text-center space-y-4">
                 <h3 className="font-heading text-xl font-semibold">Areas of Expertise</h3>
                 <div className="flex flex-wrap gap-2 justify-center">
@@ -3067,8 +3382,24 @@ Sent from your portfolio website
       {/* Footer */}
       <footer className="border-t bg-card/50 mt-16">
         <div className="container mx-auto px-6 py-8">
-          <div className="text-center text-muted-foreground">
-            <p>&copy; 2024 Mesfinasfaw Zewge - Materials Science Engineer. All rights reserved.</p>
+          <div className="text-center space-y-4">
+            <div className="flex justify-center items-center gap-6">
+              <Button
+                size="sm"
+                variant="ghost"
+                onClick={openNewsletterDialog}
+                className="text-muted-foreground hover:text-primary"
+              >
+                <Bell size={16} className="mr-1" />
+                Newsletter
+              </Button>
+              <span className="text-sm text-muted-foreground">
+                {(subscribers || []).length} subscribers
+              </span>
+            </div>
+            <p className="text-muted-foreground">
+              &copy; 2024 Mesfinasfaw Zewge - Materials Science Engineer. All rights reserved.
+            </p>
           </div>
         </div>
       </footer>
@@ -3078,6 +3409,9 @@ Sent from your portfolio website
       
       {/* Contact Dialog */}
       <ContactDialog />
+      
+      {/* Newsletter Dialog */}
+      <NewsletterDialog />
     </div>
   )
 }
