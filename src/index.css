@@ -60,6 +60,14 @@
   --color-input: var(--input);
   --color-ring: var(--ring);
 
+  /* RGB values for use in rgba() functions */
+  --color-primary-rgb: 61 80 179;
+  --color-accent-rgb: 221 186 108;
+  --color-muted-rgb: 245 245 245;
+  --color-card-rgb: 250 250 250;
+  --color-background-rgb: 255 255 255;
+  --color-border-rgb: 235 235 235;
+
   --font-heading: 'Crimson Text', serif;
   --font-body: 'Inter', sans-serif;
 }
@@ -82,6 +90,33 @@
 
 .hover-lift:hover {
   animation: gentle-lift 0.2s ease-out forwards;
+}
+
+/* Professional background pattern for header */
+.professional-pattern {
+  position: relative;
+  background: 
+    radial-gradient(circle at 25% 25%, rgba(var(--color-primary-rgb), 0.05) 0%, transparent 50%),
+    radial-gradient(circle at 75% 75%, rgba(var(--color-accent-rgb), 0.05) 0%, transparent 50%),
+    linear-gradient(135deg, 
+      rgba(var(--color-muted-rgb), 0.3) 0%, 
+      rgba(var(--color-card-rgb), 0.8) 50%, 
+      rgba(var(--color-background-rgb), 0.9) 100%
+    );
+}
+
+.professional-pattern::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image: 
+    linear-gradient(30deg, transparent 40%, rgba(var(--color-border-rgb), 0.1) 41%, rgba(var(--color-border-rgb), 0.1) 42%, transparent 43%),
+    linear-gradient(150deg, transparent 40%, rgba(var(--color-border-rgb), 0.1) 41%, rgba(var(--color-border-rgb), 0.1) 42%, transparent 43%);
+  opacity: 0.6;
+  pointer-events: none;
 }
 
 /* Ensure proper font loading */

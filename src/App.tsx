@@ -238,12 +238,12 @@ function App() {
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
-      <header className="border-b bg-card/50 backdrop-blur-sm sticky top-0 z-50">
+      <header className="border-b bg-card/50 backdrop-blur-sm sticky top-0 z-50 professional-pattern">
         <div className="container mx-auto px-6 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-3">
-              <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
-                <span className="text-primary-foreground font-bold text-sm">EI</span>
+              <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center shadow-sm">
+                <span className="text-primary-foreground font-bold text-sm">MZ</span>
               </div>
               <h1 className="font-heading font-bold text-xl">Mesfinasfaw Zewge</h1>
             </div>
