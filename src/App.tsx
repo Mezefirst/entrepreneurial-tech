@@ -2195,12 +2195,31 @@ Sent from your portfolio website
     })
   }
 
-  // Auto-fetch repos when username changes
+  // Auto-fetch repos when username changes and auto-select top repositories
   useEffect(() => {
     if (githubUsername) {
       fetchGitHubRepos(githubUsername)
     }
   }, [githubUsername])
+
+  // Auto-select top repositories when fetched
+  useEffect(() => {
+    if ((allFetchedRepos || []).length > 0 && (projects || []).length === 0) {
+      // Auto-select top 6 repositories based on a scoring algorithm
+      const scoredRepos = (allFetchedRepos || []).map(repo => ({
+        ...repo,
+        score: (repo.stars || 0) * 2 + (repo.forks || 0) * 1.5 + (repo.description ? 10 : 0) + (repo.tags.length * 3)
+      }))
+      
+      const topRepos = scoredRepos
+        .sort((a, b) => b.score - a.score)
+        .slice(0, 6)
+        .map(({ score, ...repo }) => repo)
+      
+      setProjects(topRepos)
+      setSelectedRepoIds(new Set(topRepos.map(r => r.id)))
+    }
+  }, [allFetchedRepos])
 
   const handleUsernameSubmit = (e: React.FormEvent) => {
     e.preventDefault()
@@ -2739,41 +2758,94 @@ Sent from your portfolio website
             {/* GitHub Username Input */}
             {!githubUsername && !(allFetchedRepos || []).length && !(projects || []).length && (
               <div className="space-y-6">
-                <Card className="max-w-md mx-auto">
-                  <CardHeader>
-                    <CardTitle className="font-heading text-center">Connect Your GitHub</CardTitle>
-                    <CardDescription className="text-center">
-                      Enter your GitHub username to automatically display your latest repositories with advanced filtering and sorting options
+                {/* Enhanced GitHub Connection Card */}
+                <Card className="max-w-2xl mx-auto border-2 border-primary/20 bg-gradient-to-br from-primary/5 to-accent/5">
+                  <CardHeader className="text-center space-y-4">
+                    <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto">
+                      <GithubLogo size={32} className="text-primary" />
+                    </div>
+                    <CardTitle className="font-heading text-2xl">Connect Your GitHub Profile</CardTitle>
+                    <CardDescription className="text-base leading-relaxed">
+                      Automatically showcase your best repositories with intelligent selection, 
+                      live GitHub stats, and advanced filtering capabilities
                     </CardDescription>
                   </CardHeader>
-                  <CardContent>
+                  <CardContent className="space-y-6">
                     <form onSubmit={handleUsernameSubmit} className="space-y-4">
-                      <Input
-                        name="username"
-                        placeholder="e.g. your-github-username"
-                        required
-                      />
-                      <Button type="submit" className="w-full">
-                        <GithubLogo className="mr-2" size={16} />
-                        Fetch My Repositories
+                      <div className="space-y-2">
+                        <label htmlFor="github-username-input" className="text-sm font-medium">
+                          GitHub Username
+                        </label>
+                        <div className="relative">
+                          <GithubLogo className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground" size={16} />
+                          <Input
+                            id="github-username-input"
+                            name="username"
+                            placeholder="Enter your GitHub username (e.g. octocat)"
+                            className="pl-10 h-12 text-base"
+                            required
+                          />
+                        </div>
+                      </div>
+                      <Button type="submit" className="w-full h-12 text-base bg-primary hover:bg-primary/90">
+                        <GithubLogo className="mr-2" size={20} />
+                        Connect & Auto-Select My Best Repositories
                       </Button>
                     </form>
-                    <div className="mt-4 p-3 bg-muted/50 rounded-lg">
-                      <p className="text-xs text-muted-foreground text-center">
-                        This will fetch your public repositories and display them with GitHub stats, 
-                        language filtering, and sorting by stars, forks, or last updated.
-                      </p>
+                    
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-4 border-t">
+                      <div className="text-center space-y-2">
+                        <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center mx-auto">
+                          <span className="text-green-600 font-bold text-sm">1</span>
+                        </div>
+                        <p className="text-xs text-muted-foreground">
+                          <strong>Fetch All Repos</strong><br />
+                          We'll get your public repositories
+                        </p>
+                      </div>
+                      <div className="text-center space-y-2">
+                        <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center mx-auto">
+                          <span className="text-blue-600 font-bold text-sm">2</span>
+                        </div>
+                        <p className="text-xs text-muted-foreground">
+                          <strong>Smart Selection</strong><br />
+                          Auto-select your top 6 repositories
+                        </p>
+                      </div>
+                      <div className="text-center space-y-2">
+                        <div className="w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center mx-auto">
+                          <span className="text-purple-600 font-bold text-sm">3</span>
+                        </div>
+                        <p className="text-xs text-muted-foreground">
+                          <strong>Customize</strong><br />
+                          Manage which repos to showcase
+                        </p>
+                      </div>
+                    </div>
+                    
+                    <div className="bg-muted/50 rounded-lg p-4 space-y-3">
+                      <div className="flex items-center gap-2">
+                        <Star size={16} className="text-accent" />
+                        <span className="font-medium text-sm">What you'll get:</span>
+                      </div>
+                      <ul className="space-y-1 text-xs text-muted-foreground ml-6">
+                        <li>• Live GitHub stats (stars, forks, last updated)</li>
+                        <li>• Automatic README.md content display</li>
+                        <li>• Language-based filtering and sorting</li>
+                        <li>• Repository management controls</li>
+                        <li>• Social sharing and commenting features</li>
+                      </ul>
                     </div>
                   </CardContent>
                 </Card>
                 
                 <div className="text-center">
-                  <p className="text-muted-foreground mb-4">Or</p>
+                  <p className="text-muted-foreground mb-4 text-sm">Or manually add specific repositories</p>
                   <Card className="max-w-md mx-auto">
                     <CardHeader>
                       <CardTitle className="font-heading text-center">Add Specific Repository</CardTitle>
                       <CardDescription className="text-center">
-                        Select a single repository from any GitHub user to add to your portfolio
+                        Add individual repositories from any GitHub user
                       </CardDescription>
                     </CardHeader>
                     <CardContent>
@@ -3014,21 +3086,36 @@ Sent from your portfolio website
             {!isLoadingRepos && !repoError && (projects || []).length > 0 && (
               <>
                 <div className="flex justify-center mb-6">
-                  <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                    <span>Showing repositories for @{githubUsername}</span>
-                    <Button size="sm" variant="ghost" onClick={() => setGithubUsername("")}>
-                      Change Username
-                    </Button>
-                    <Button size="sm" variant="ghost" onClick={() => githubUsername && fetchGitHubRepos(githubUsername)}>
-                      Refresh
-                    </Button>
-                    <Dialog open={isSelectingFromGitHub} onOpenChange={setIsSelectingFromGitHub}>
-                      <DialogTrigger asChild>
-                        <Button size="sm" variant="ghost">
-                          <Plus size={14} className="mr-2" />
-                          Add Repository
-                        </Button>
-                      </DialogTrigger>
+                  <Card className="bg-gradient-to-r from-primary/10 to-accent/10 border-primary/20">
+                    <CardContent className="pt-4 pb-4">
+                      <div className="flex items-center justify-center gap-6 text-sm">
+                        <div className="flex items-center gap-2">
+                          <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                          <span className="font-medium">Connected to GitHub</span>
+                        </div>
+                        <div className="flex items-center gap-2 text-muted-foreground">
+                          <GithubLogo size={16} />
+                          <span>@{githubUsername}</span>
+                        </div>
+                        <div className="flex gap-2">
+                          <Button size="sm" variant="ghost" onClick={() => setGithubUsername("")}>
+                            Change Username
+                          </Button>
+                          <Button size="sm" variant="ghost" onClick={() => githubUsername && fetchGitHubRepos(githubUsername)} disabled={isLoadingRepos}>
+                            {isLoadingRepos ? (
+                              <>
+                                <SpinnerGap size={14} className="mr-1 animate-spin" />
+                                Refreshing...
+                              </>
+                            ) : (
+                              "Refresh"
+                            )}
+                          </Button>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </div>
                       <DialogContent className="max-w-md">
                         <DialogHeader>
                           <DialogTitle>Add Specific Repository</DialogTitle>
@@ -3081,7 +3168,8 @@ Sent from your portfolio website
                         </div>
                       </DialogContent>
                     </Dialog>
-                    <Dialog open={isManageDialogOpen} onOpenChange={setIsManageDialogOpen}>
+                  </div>
+                  <Dialog open={isManageDialogOpen} onOpenChange={setIsManageDialogOpen}>
                       <DialogTrigger asChild>
                         <Button size="sm" variant="outline">
                           <Gear size={14} className="mr-2" />
@@ -3405,7 +3493,7 @@ Sent from your portfolio website
                     ))}
                   </div>
                 )}
-              </>
+              </div>
             )}
           </TabsContent>
 
