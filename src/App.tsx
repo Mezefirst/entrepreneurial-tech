@@ -1064,7 +1064,7 @@ function App() {
                   </CardContent>
                 </Card>
 
-                <Card className="text-center hover-lift transition-all duration-200 cursor-pointer" onClick={() => window.open('https://linkedin.com/in/mesfinasfaw-zewge', '_blank')}>
+                <Card className="text-center hover-lift transition-all duration-200 cursor-pointer" onClick={() => window.open('https://www.linkedin.com/in/mesfinasfaw-zewge-5b8b8b123', '_blank')}>
                   <CardContent className="pt-6">
                     <LinkedinLogo size={32} className="mx-auto mb-3 text-primary" />
                     <h3 className="font-semibold mb-2">LinkedIn</h3>
