@@ -245,7 +245,7 @@ function App() {
               <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center shadow-sm">
                 <span className="text-primary-foreground font-bold text-sm">MZ</span>
               </div>
-              <h1 className="font-heading font-bold text-xl">Mesfinasfaw Zewge</h1>
+              <h1 className="font-heading font-bold text-xl">Mesfin Asfaw Zewge</h1>
             </div>
             <nav className="hidden md:flex space-x-6">
               <a href="#about" className="text-muted-foreground hover:text-foreground transition-colors">About</a>
@@ -282,15 +282,15 @@ function App() {
           <TabsContent value="about" className="space-y-8">
             <div className="text-center space-y-6">
               <Avatar className="w-32 h-32 mx-auto ring-4 ring-primary/20 ring-offset-4 ring-offset-background">
-                <AvatarImage src={profilePhoto} alt="Mesfinasfaw Zewge - Materials Science Engineer" />
+                <AvatarImage src={profilePhoto} alt="Mesfin Asfaw Zewge - Materials Science Engineer" />
                 <AvatarFallback className="text-2xl bg-primary text-primary-foreground">MZ</AvatarFallback>
               </Avatar>
               <div>
-                <h2 className="font-heading text-3xl font-bold mb-2">Mesfinasfaw Zewge</h2>
+                <h2 className="font-heading text-3xl font-bold mb-2">Mesfin Asfaw Zewge</h2>
                 <p className="text-muted-foreground text-lg">Materials Science Engineer & Innovation Specialist</p>
                 <div className="flex items-center justify-center gap-4 mt-4 text-sm text-muted-foreground">
                   <div className="flex items-center gap-1">
-                    <EnvelopeSimple size={14} />
+                    
                     <span>+46736671975</span>
                   </div>
                   <div className="flex items-center gap-1">
