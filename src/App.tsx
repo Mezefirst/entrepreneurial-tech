@@ -36,7 +36,12 @@ import {
   ChatCircle,
   Heart,
   ArrowBendUpLeft,
-  PaperPlaneTilt
+  PaperPlaneTilt,
+  ShareNetwork,
+  TwitterLogo,
+  FacebookLogo,
+  Copy,
+  Check
 } from "@phosphor-icons/react"
 
 interface GitHubRepo {
@@ -199,6 +204,9 @@ function App() {
   const [activeCommentsDialog, setActiveCommentsDialog] = useState<string | null>(null)
   const [userInfo, setUserInfo] = useState<any>(null)
 
+  // Social sharing state
+  const [copiedUrl, setCopiedUrl] = useState<string | null>(null)
+
   // Get user info on mount
   useEffect(() => {
     const getUserInfo = async () => {
@@ -291,6 +299,75 @@ function App() {
     return itemComments.reduce((total, comment) => {
       return total + 1 + (comment.replies?.length || 0)
     }, 0)
+  }
+
+  // Social sharing functions
+  const generateShareUrl = (type: 'project' | 'article', item: Project | Article) => {
+    const baseUrl = window.location.origin + window.location.pathname
+    if (type === 'project') {
+      return `${baseUrl}#project-${item.id}`
+    } else {
+      return `${baseUrl}#article-${item.id}`
+    }
+  }
+
+  const generateShareText = (type: 'project' | 'article', item: Project | Article) => {
+    if (type === 'project') {
+      const project = item as Project
+      return `Check out "${project.title}" - ${project.description} by Mesfinasfaw Zewge`
+    } else {
+      const article = item as Article
+      return `Read "${article.title}" - ${article.excerpt} by Mesfinasfaw Zewge`
+    }
+  }
+
+  const shareToTwitter = (type: 'project' | 'article', item: Project | Article) => {
+    const url = generateShareUrl(type, item)
+    const text = generateShareText(type, item)
+    const hashtags = type === 'project' ? 'MaterialsEngineering,AI,SustainableTech' : 'Research,MaterialsScience,Innovation'
+    const twitterUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(url)}&hashtags=${hashtags}`
+    window.open(twitterUrl, '_blank', 'width=550,height=420')
+  }
+
+  const shareToLinkedIn = (type: 'project' | 'article', item: Project | Article) => {
+    const url = generateShareUrl(type, item)
+    const text = generateShareText(type, item)
+    const linkedInUrl = `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(url)}&summary=${encodeURIComponent(text)}`
+    window.open(linkedInUrl, '_blank', 'width=550,height=420')
+  }
+
+  const shareToFacebook = (type: 'project' | 'article', item: Project | Article) => {
+    const url = generateShareUrl(type, item)
+    const facebookUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`
+    window.open(facebookUrl, '_blank', 'width=550,height=420')
+  }
+
+  const copyToClipboard = async (type: 'project' | 'article', item: Project | Article) => {
+    const url = generateShareUrl(type, item)
+    try {
+      await navigator.clipboard.writeText(url)
+      setCopiedUrl(url)
+      setTimeout(() => setCopiedUrl(null), 2000)
+    } catch (error) {
+      // Fallback for browsers that don't support clipboard API
+      const textArea = document.createElement('textarea')
+      textArea.value = url
+      document.body.appendChild(textArea)
+      textArea.select()
+      document.execCommand('copy')
+      document.body.removeChild(textArea)
+      setCopiedUrl(url)
+      setTimeout(() => setCopiedUrl(null), 2000)
+    }
+  }
+
+  const shareViaEmail = (type: 'project' | 'article', item: Project | Article) => {
+    const url = generateShareUrl(type, item)
+    const text = generateShareText(type, item)
+    const subject = `Interesting ${type}: ${item.title}`
+    const body = `${text}\n\nRead more: ${url}`
+    const emailUrl = `mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`
+    window.open(emailUrl)
   }
 
   // Comments component
@@ -449,6 +526,106 @@ function App() {
           </div>
         </div>
       </DialogContent>
+    )
+  }
+
+  // Social sharing buttons component
+  const SocialShareButtons = ({ type, item }: { type: 'project' | 'article', item: Project | Article }) => {
+    const shareUrl = generateShareUrl(type, item)
+    const isCopied = copiedUrl === shareUrl
+
+    return (
+      <div className="flex items-center gap-1">
+        <Dialog>
+          <DialogTrigger asChild>
+            <Button 
+              size="sm" 
+              variant="ghost" 
+              className="hover:bg-accent/50"
+              title="Share"
+            >
+              <ShareNetwork size={16} />
+            </Button>
+          </DialogTrigger>
+          <DialogContent className="max-w-md">
+            <DialogHeader>
+              <DialogTitle className="flex items-center gap-2">
+                <ShareNetwork size={20} />
+                Share {type === 'project' ? 'Project' : 'Article'}
+              </DialogTitle>
+              <DialogDescription>
+                Share "{item.title}" with others
+              </DialogDescription>
+            </DialogHeader>
+            
+            <div className="space-y-4">
+              {/* Share URL display */}
+              <div className="p-3 bg-muted/50 rounded-lg">
+                <div className="flex items-center justify-between gap-2">
+                  <span className="text-sm text-muted-foreground truncate">{shareUrl}</span>
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    onClick={() => copyToClipboard(type, item)}
+                    className="shrink-0"
+                  >
+                    {isCopied ? (
+                      <Check size={14} className="text-green-600" />
+                    ) : (
+                      <Copy size={14} />
+                    )}
+                  </Button>
+                </div>
+                {isCopied && (
+                  <p className="text-xs text-green-600 mt-1">Link copied to clipboard!</p>
+                )}
+              </div>
+
+              {/* Social platform buttons */}
+              <div className="grid grid-cols-2 gap-3">
+                <Button
+                  variant="outline"
+                  onClick={() => shareToTwitter(type, item)}
+                  className="flex items-center gap-2"
+                >
+                  <TwitterLogo size={16} />
+                  Twitter
+                </Button>
+                <Button
+                  variant="outline"
+                  onClick={() => shareToLinkedIn(type, item)}
+                  className="flex items-center gap-2"
+                >
+                  <LinkedinLogo size={16} />
+                  LinkedIn
+                </Button>
+                <Button
+                  variant="outline"
+                  onClick={() => shareToFacebook(type, item)}
+                  className="flex items-center gap-2"
+                >
+                  <FacebookLogo size={16} />
+                  Facebook
+                </Button>
+                <Button
+                  variant="outline"
+                  onClick={() => shareViaEmail(type, item)}
+                  className="flex items-center gap-2"
+                >
+                  <EnvelopeSimple size={16} />
+                  Email
+                </Button>
+              </div>
+
+              {/* Share text preview */}
+              <div className="p-3 bg-muted/30 rounded-lg">
+                <p className="text-xs text-muted-foreground mb-1">Share preview:</p>
+                <p className="text-sm">{generateShareText(type, item)}</p>
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
+      </div>
     )
   }
 
@@ -1402,7 +1579,7 @@ function App() {
                         <CardHeader>
                           <div className="flex items-start justify-between">
                             <CardTitle className="font-heading">{project.title}</CardTitle>
-                            <div className="flex gap-2">
+                            <div className="flex gap-1">
                               <Button size="sm" variant="ghost" asChild>
                                 <a href={project.githubUrl} target="_blank" rel="noopener noreferrer">
                                   <GithubLogo size={16} />
@@ -1415,6 +1592,7 @@ function App() {
                                   </a>
                                 </Button>
                               )}
+                              <SocialShareButtons type="project" item={project} />
                               <Dialog 
                                 open={activeCommentsDialog === `project-${project.id}`}
                                 onOpenChange={(open) => setActiveCommentsDialog(open ? `project-${project.id}` : null)}
@@ -1585,7 +1763,7 @@ function App() {
                           <CardTitle className="font-heading mb-2">{article.title}</CardTitle>
                           <CardDescription className="text-base">{article.excerpt}</CardDescription>
                         </div>
-                        <div className="flex gap-2">
+                        <div className="flex gap-1">
                           {article.pdfUrl && (
                             <Button size="sm" variant="ghost" asChild>
                               <a href={article.pdfUrl} target="_blank" rel="noopener noreferrer">
@@ -1593,6 +1771,7 @@ function App() {
                               </a>
                             </Button>
                           )}
+                          <SocialShareButtons type="article" item={article} />
                           <Dialog 
                             open={activeCommentsDialog === `article-${article.id}`}
                             onOpenChange={(open) => setActiveCommentsDialog(open ? `article-${article.id}` : null)}
