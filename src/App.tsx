@@ -196,7 +196,7 @@ function App() {
               <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
                 <span className="text-primary-foreground font-bold text-sm">EI</span>
               </div>
-              <h1 className="font-heading font-bold text-xl">Entrepreneurial Insights</h1>
+              <h1 className="font-heading font-bold text-xl">Mesfinasfaw Zewge</h1>
             </div>
             <nav className="hidden md:flex space-x-6">
               <a href="#about" className="text-muted-foreground hover:text-foreground transition-colors">About</a>
@@ -234,11 +234,11 @@ function App() {
             <div className="text-center space-y-6">
               <Avatar className="w-32 h-32 mx-auto">
                 <AvatarImage src="/api/placeholder/300/300" alt="Profile" />
-                <AvatarFallback className="text-2xl bg-primary text-primary-foreground">JD</AvatarFallback>
+                <AvatarFallback className="text-2xl bg-primary text-primary-foreground">MZ</AvatarFallback>
               </Avatar>
               <div>
-                <h2 className="font-heading text-3xl font-bold mb-2">Dr. Jane Developer</h2>
-                <p className="text-muted-foreground text-lg">Entrepreneur, Researcher & Software Developer</p>
+                <h2 className="font-heading text-3xl font-bold mb-2">Mesfinasfaw Zewge</h2>
+                <p className="text-muted-foreground text-lg">Materials Science Engineer & Solution-Driven Professional</p>
               </div>
             </div>
 
@@ -249,15 +249,16 @@ function App() {
                 </CardHeader>
                 <CardContent className="prose prose-lg max-w-none">
                   <p className="text-muted-foreground leading-relaxed">
-                    I'm a passionate entrepreneur and researcher at the intersection of technology and business innovation. 
-                    With a PhD in Business Administration and over a decade of software development experience, I bridge 
-                    the gap between cutting-edge technology and practical business applications.
+                    I'm a motivated and solution-driven engineer with 12+ years of international work experience 
+                    and a fresh MSc in Industrial and Materials Science from Chalmers University of Technology. 
+                    I specialize in the mechanical performance of engineering materials, material characterization, 
+                    phase transformations, surface technology, and additive manufacturing for sustainable solutions.
                   </p>
                   <p className="text-muted-foreground leading-relaxed">
-                    My work focuses on how emerging technologies can drive entrepreneurial success, with particular expertise 
-                    in AI applications, startup strategy, and venture capital dynamics. I regularly publish research on 
-                    innovation patterns and maintain several open-source projects that demonstrate practical implementations 
-                    of business technology solutions.
+                    My diverse background spans aerospace maintenance, product development, and materials engineering, 
+                    with expertise in aircraft maintenance (Boeing 767 type-rated), CAD design, and lean manufacturing. 
+                    I'm passionate about innovations in sustainable technologies and committed to delivering quality-driven 
+                    solutions that comply with industry standards and regulations.
                   </p>
                 </CardContent>
               </Card>
@@ -269,16 +270,18 @@ function App() {
                   </CardHeader>
                   <CardContent className="space-y-3">
                     <div>
-                      <h4 className="font-semibold">PhD in Business Administration</h4>
-                      <p className="text-muted-foreground text-sm">Stanford University, 2018</p>
+                      <h4 className="font-semibold">MSc Industrial and Materials Science</h4>
+                      <p className="text-muted-foreground text-sm">Chalmers University of Technology, 2025</p>
+                      <p className="text-xs text-muted-foreground mt-1">
+                        Dissertation: "Time-Dependent Behavior: A Study on Creep and Stress Relaxation Performance for Heat Treatment-free Fasteners"
+                      </p>
                     </div>
                     <div>
-                      <h4 className="font-semibold">MS Computer Science</h4>
-                      <p className="text-muted-foreground text-sm">MIT, 2014</p>
-                    </div>
-                    <div>
-                      <h4 className="font-semibold">BS Electrical Engineering</h4>
-                      <p className="text-muted-foreground text-sm">UC Berkeley, 2012</p>
+                      <h4 className="font-semibold">MSc Mechanical Engineering</h4>
+                      <p className="text-muted-foreground text-sm">Halmstad University, 2015</p>
+                      <p className="text-xs text-muted-foreground mt-1">
+                        Academic Achievement Award & Scholarship
+                      </p>
                     </div>
                   </CardContent>
                 </Card>
@@ -289,16 +292,20 @@ function App() {
                   </CardHeader>
                   <CardContent className="space-y-3">
                     <div>
-                      <h4 className="font-semibold">Senior Research Fellow</h4>
-                      <p className="text-muted-foreground text-sm">Innovation Lab, 2020-Present</p>
+                      <h4 className="font-semibold">Service Engineer</h4>
+                      <p className="text-muted-foreground text-sm">Direkt Chark Göteborg AB, 2018-2023</p>
                     </div>
                     <div>
-                      <h4 className="font-semibold">CTO & Co-founder</h4>
-                      <p className="text-muted-foreground text-sm">TechStart Inc., 2018-2020</p>
+                      <h4 className="font-semibold">Development Engineer</h4>
+                      <p className="text-muted-foreground text-sm">SWT Development, 2016</p>
                     </div>
                     <div>
-                      <h4 className="font-semibold">Software Engineer</h4>
-                      <p className="text-muted-foreground text-sm">Google, 2014-2018</p>
+                      <h4 className="font-semibold">Flight Engineer</h4>
+                      <p className="text-muted-foreground text-sm">Ethiopian Airlines, 2010-2014</p>
+                    </div>
+                    <div>
+                      <h4 className="font-semibold">Project Manager</h4>
+                      <p className="text-muted-foreground text-sm">Meze Engineering, 2008-2010</p>
                     </div>
                   </CardContent>
                 </Card>
@@ -608,10 +615,10 @@ function App() {
           {/* Research Section */}
           <TabsContent value="research" className="space-y-8">
             <div className="text-center space-y-4">
-              <h2 className="font-heading text-3xl font-bold">Research & Insights</h2>
+              <h2 className="font-heading text-3xl font-bold">Research & Publications</h2>
               <p className="text-muted-foreground max-w-2xl mx-auto">
-                Academic research and thought pieces exploring the intersection of technology, 
-                entrepreneurship, and business innovation.
+                Research focus areas include materials engineering, sustainable manufacturing, 
+                and innovative solutions for engineering challenges in aerospace and automotive industries.
               </p>
             </div>
 
@@ -710,8 +717,8 @@ function App() {
             <div className="text-center space-y-4">
               <h2 className="font-heading text-3xl font-bold">Get In Touch</h2>
               <p className="text-muted-foreground max-w-2xl mx-auto">
-                Interested in collaboration, research partnerships, or discussing innovative business technology solutions? 
-                I'd love to hear from you.
+                Interested in collaboration on materials engineering projects, sustainable manufacturing solutions, 
+                or discussing innovative approaches to engineering challenges? I'd love to connect.
               </p>
             </div>
 
@@ -721,7 +728,8 @@ function App() {
                   <CardContent className="pt-6">
                     <EnvelopeSimple size={32} className="mx-auto mb-3 text-primary" />
                     <h3 className="font-semibold mb-2">Email</h3>
-                    <p className="text-muted-foreground text-sm">jane@innovations.dev</p>
+                    <p className="text-muted-foreground text-sm">zewge@student.chalmers.se</p>
+                    <p className="text-muted-foreground text-xs">mazefirst@gmail.com</p>
                   </CardContent>
                 </Card>
 
@@ -745,15 +753,17 @@ function App() {
               <Separator />
 
               <div className="text-center space-y-4">
-                <h3 className="font-heading text-xl font-semibold">Areas of Interest</h3>
+                <h3 className="font-heading text-xl font-semibold">Areas of Expertise</h3>
                 <div className="flex flex-wrap gap-2 justify-center">
                   {[
-                    "Startup Strategy",
-                    "AI Applications",
-                    "Venture Capital",
-                    "Business Innovation",
-                    "Open Source",
-                    "Research Collaboration"
+                    "Materials Science",
+                    "Additive Manufacturing", 
+                    "Aircraft Maintenance",
+                    "CAD Design",
+                    "Product Development",
+                    "Quality Assurance",
+                    "Surface Technology",
+                    "Lean Manufacturing"
                   ].map((interest) => (
                     <Badge key={interest} variant="secondary" className="px-3 py-1">
                       {interest}
@@ -770,7 +780,7 @@ function App() {
       <footer className="border-t bg-card/50 mt-16">
         <div className="container mx-auto px-6 py-8">
           <div className="text-center text-muted-foreground">
-            <p>&copy; 2024 Entrepreneurial Insights & Innovations. All rights reserved.</p>
+            <p>&copy; 2024 Mesfinasfaw Zewge - Materials Science Engineer. All rights reserved.</p>
           </div>
         </div>
       </footer>
