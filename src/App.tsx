@@ -8,6 +8,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Separator } from "@/components/ui/separator"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
+import { Checkbox } from "@/components/ui/checkbox"
 import profilePhoto from "@/assets/images/profile-photo.svg"
 import { 
   GithubLogo, 
@@ -26,7 +28,10 @@ import {
   SortAscending,
   CalendarBlank,
   Camera,
-  Upload
+  Upload,
+  Plus,
+  Trash,
+  Gear
 } from "@phosphor-icons/react"
 
 interface GitHubRepo {
@@ -71,6 +76,7 @@ interface Article {
 function App() {
   const [activeTab, setActiveTab] = useState("about")
   const [projects, setProjects] = useKV<Project[]>("projects", [])
+  const [allFetchedRepos, setAllFetchedRepos] = useKV<Project[]>("all-fetched-repos", [])
   const [articles] = useKV<Article[]>("articles", [
     {
       id: "1",
@@ -136,6 +142,10 @@ function App() {
   const [isUploadingPhoto, setIsUploadingPhoto] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
 
+  // Repository management state
+  const [isManageDialogOpen, setIsManageDialogOpen] = useState(false)
+  const [selectedRepoIds, setSelectedRepoIds] = useState<Set<string>>(new Set())
+
   // Handle profile photo upload
   const handlePhotoUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0]
@@ -191,7 +201,7 @@ function App() {
     setRepoError(null)
 
     try {
-      const response = await fetch(`https://api.github.com/users/${username}/repos?sort=updated&per_page=12`)
+      const response = await fetch(`https://api.github.com/users/${username}/repos?sort=updated&per_page=50`)
       
       if (!response.ok) {
         throw new Error(response.status === 404 ? 'User not found' : 'Failed to fetch repositories')
@@ -215,13 +225,53 @@ function App() {
           updatedAt: repo.updated_at
         }))
 
-      setProjects(filteredRepos)
+      // Store all fetched repos for selection
+      setAllFetchedRepos(filteredRepos)
+      
+      // If no projects selected yet, display all fetched repos
+      if ((projects || []).length === 0) {
+        setProjects(filteredRepos)
+      }
     } catch (error) {
       console.error('Error fetching GitHub repos:', error)
       setRepoError(error instanceof Error ? error.message : 'Failed to fetch repositories')
     } finally {
       setIsLoadingRepos(false)
     }
+  }
+
+  // Initialize selected repo IDs when projects change
+  useEffect(() => {
+    const selectedIds = new Set((projects || []).map(p => p.id))
+    setSelectedRepoIds(selectedIds)
+  }, [projects])
+
+  // Handle repository selection changes
+  const handleRepoSelection = (repoId: string, isSelected: boolean) => {
+    const newSelectedIds = new Set(selectedRepoIds)
+    if (isSelected) {
+      newSelectedIds.add(repoId)
+    } else {
+      newSelectedIds.delete(repoId)
+    }
+    setSelectedRepoIds(newSelectedIds)
+  }
+
+  // Apply repository selection
+  const applyRepoSelection = () => {
+    const selectedProjects = (allFetchedRepos || []).filter(repo => selectedRepoIds.has(repo.id))
+    setProjects(selectedProjects)
+    setIsManageDialogOpen(false)
+  }
+
+  // Remove a project from the displayed list
+  const removeProject = (projectId: string) => {
+    setProjects(currentProjects => (currentProjects || []).filter(p => p.id !== projectId))
+    setSelectedRepoIds(prev => {
+      const newSet = new Set(prev)
+      newSet.delete(projectId)
+      return newSet
+    })
   }
 
   // Auto-fetch repos when username changes
@@ -716,7 +766,7 @@ function App() {
             )}
 
             {/* Empty State - No repos or username set */}
-            {!isLoadingRepos && !repoError && githubUsername && (projects || []).length === 0 && (
+            {!isLoadingRepos && !repoError && githubUsername && (projects || []).length === 0 && (allFetchedRepos || []).length === 0 && (
               <Card className="text-center py-12">
                 <CardContent>
                   <div className="space-y-4">
@@ -743,6 +793,106 @@ function App() {
               </Card>
             )}
 
+            {/* Empty State - Repos fetched but none selected */}
+            {!isLoadingRepos && !repoError && githubUsername && (projects || []).length === 0 && (allFetchedRepos || []).length > 0 && (
+              <Card className="text-center py-12">
+                <CardContent>
+                  <div className="space-y-4">
+                    <Gear size={48} className="mx-auto text-muted-foreground" />
+                    <div>
+                      <h3 className="font-semibold text-lg mb-2">No Repositories Selected</h3>
+                      <p className="text-muted-foreground mb-4">
+                        You have {(allFetchedRepos || []).length} repositories available from @{githubUsername}. 
+                        Select which ones you'd like to showcase in your portfolio.
+                      </p>
+                      <Dialog open={isManageDialogOpen} onOpenChange={setIsManageDialogOpen}>
+                        <DialogTrigger asChild>
+                          <Button>
+                            <Plus className="mr-2" size={16} />
+                            Select Repositories
+                          </Button>
+                        </DialogTrigger>
+                        <DialogContent className="max-w-2xl max-h-[600px] overflow-y-auto">
+                          <DialogHeader>
+                            <DialogTitle>Select Repositories to Display</DialogTitle>
+                            <DialogDescription>
+                              Choose which repositories from your GitHub profile you want to showcase on your portfolio.
+                            </DialogDescription>
+                          </DialogHeader>
+                          <div className="space-y-4 mt-4">
+                            <div className="flex items-center justify-between">
+                              <span className="text-sm text-muted-foreground">
+                                {selectedRepoIds.size} of {(allFetchedRepos || []).length} repositories selected
+                              </span>
+                              <div className="flex gap-2">
+                                <Button 
+                                  size="sm" 
+                                  variant="outline" 
+                                  onClick={() => setSelectedRepoIds(new Set((allFetchedRepos || []).map(r => r.id)))}
+                                >
+                                  Select All
+                                </Button>
+                                <Button 
+                                  size="sm" 
+                                  variant="outline" 
+                                  onClick={() => setSelectedRepoIds(new Set())}
+                                >
+                                  Clear All
+                                </Button>
+                              </div>
+                            </div>
+                            <div className="space-y-2 max-h-96 overflow-y-auto">
+                              {(allFetchedRepos || []).map((repo) => (
+                                <div key={repo.id} className="flex items-start space-x-3 p-3 border rounded-lg hover:bg-muted/30">
+                                  <Checkbox
+                                    id={`empty-repo-${repo.id}`}
+                                    checked={selectedRepoIds.has(repo.id)}
+                                    onCheckedChange={(checked) => handleRepoSelection(repo.id, checked === true)}
+                                    className="mt-1"
+                                  />
+                                  <div className="flex-1 min-w-0">
+                                    <label htmlFor={`empty-repo-${repo.id}`} className="cursor-pointer">
+                                      <div className="flex items-center justify-between">
+                                        <h4 className="font-medium text-sm">{repo.title}</h4>
+                                        <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                                          {typeof repo.stars === 'number' && (
+                                            <div className="flex items-center gap-1">
+                                              <Star size={12} />
+                                              <span>{repo.stars}</span>
+                                            </div>
+                                          )}
+                                          {repo.techStack.length > 0 && (
+                                            <Badge variant="secondary" className="text-xs px-1 py-0">
+                                              {repo.techStack[0]}
+                                            </Badge>
+                                          )}
+                                        </div>
+                                      </div>
+                                      <p className="text-xs text-muted-foreground mt-1 line-clamp-2">
+                                        {repo.description}
+                                      </p>
+                                    </label>
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                          <div className="flex justify-end gap-2 mt-6">
+                            <Button variant="outline" onClick={() => setIsManageDialogOpen(false)}>
+                              Cancel
+                            </Button>
+                            <Button onClick={applyRepoSelection}>
+                              Apply Selection
+                            </Button>
+                          </div>
+                        </DialogContent>
+                      </Dialog>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+
             {/* Projects Grid */}
             {!isLoadingRepos && !repoError && (projects || []).length > 0 && (
               <>
@@ -755,6 +905,88 @@ function App() {
                     <Button size="sm" variant="ghost" onClick={() => githubUsername && fetchGitHubRepos(githubUsername)}>
                       Refresh
                     </Button>
+                    <Dialog open={isManageDialogOpen} onOpenChange={setIsManageDialogOpen}>
+                      <DialogTrigger asChild>
+                        <Button size="sm" variant="outline">
+                          <Gear size={14} className="mr-2" />
+                          Manage Repositories
+                        </Button>
+                      </DialogTrigger>
+                      <DialogContent className="max-w-2xl max-h-[600px] overflow-y-auto">
+                        <DialogHeader>
+                          <DialogTitle>Select Repositories to Display</DialogTitle>
+                          <DialogDescription>
+                            Choose which repositories from your GitHub profile you want to showcase on your portfolio.
+                          </DialogDescription>
+                        </DialogHeader>
+                        <div className="space-y-4 mt-4">
+                          <div className="flex items-center justify-between">
+                            <span className="text-sm text-muted-foreground">
+                              {selectedRepoIds.size} of {(allFetchedRepos || []).length} repositories selected
+                            </span>
+                            <div className="flex gap-2">
+                              <Button 
+                                size="sm" 
+                                variant="outline" 
+                                onClick={() => setSelectedRepoIds(new Set((allFetchedRepos || []).map(r => r.id)))}
+                              >
+                                Select All
+                              </Button>
+                              <Button 
+                                size="sm" 
+                                variant="outline" 
+                                onClick={() => setSelectedRepoIds(new Set())}
+                              >
+                                Clear All
+                              </Button>
+                            </div>
+                          </div>
+                          <div className="space-y-2 max-h-96 overflow-y-auto">
+                            {(allFetchedRepos || []).map((repo) => (
+                              <div key={repo.id} className="flex items-start space-x-3 p-3 border rounded-lg hover:bg-muted/30">
+                                <Checkbox
+                                  id={`repo-${repo.id}`}
+                                  checked={selectedRepoIds.has(repo.id)}
+                                  onCheckedChange={(checked) => handleRepoSelection(repo.id, checked === true)}
+                                  className="mt-1"
+                                />
+                                <div className="flex-1 min-w-0">
+                                  <label htmlFor={`repo-${repo.id}`} className="cursor-pointer">
+                                    <div className="flex items-center justify-between">
+                                      <h4 className="font-medium text-sm">{repo.title}</h4>
+                                      <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                                        {typeof repo.stars === 'number' && (
+                                          <div className="flex items-center gap-1">
+                                            <Star size={12} />
+                                            <span>{repo.stars}</span>
+                                          </div>
+                                        )}
+                                        {repo.techStack.length > 0 && (
+                                          <Badge variant="secondary" className="text-xs px-1 py-0">
+                                            {repo.techStack[0]}
+                                          </Badge>
+                                        )}
+                                      </div>
+                                    </div>
+                                    <p className="text-xs text-muted-foreground mt-1 line-clamp-2">
+                                      {repo.description}
+                                    </p>
+                                  </label>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                        <div className="flex justify-end gap-2 mt-6">
+                          <Button variant="outline" onClick={() => setIsManageDialogOpen(false)}>
+                            Cancel
+                          </Button>
+                          <Button onClick={applyRepoSelection}>
+                            Apply Selection
+                          </Button>
+                        </div>
+                      </DialogContent>
+                    </Dialog>
                   </div>
                 </div>
 
@@ -877,6 +1109,15 @@ function App() {
                                   </a>
                                 </Button>
                               )}
+                              <Button 
+                                size="sm" 
+                                variant="ghost" 
+                                onClick={() => removeProject(project.id)}
+                                className="text-destructive hover:text-destructive hover:bg-destructive/10"
+                                title="Remove from portfolio"
+                              >
+                                <Trash size={16} />
+                              </Button>
                             </div>
                           </div>
                           <CardDescription>{project.description}</CardDescription>
