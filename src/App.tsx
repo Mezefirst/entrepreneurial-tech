@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useKV } from "@github/spark/hooks"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
@@ -16,8 +16,26 @@ import {
   EnvelopeSimple,
   Article,
   Code,
-  User
+  User,
+  Star,
+  GitFork,
+  SpinnerGap
 } from "@phosphor-icons/react"
+
+interface GitHubRepo {
+  id: number
+  name: string
+  description: string | null
+  html_url: string
+  homepage: string | null
+  topics: string[]
+  language: string | null
+  stargazers_count: number
+  forks_count: number
+  updated_at: string
+  fork: boolean
+  archived: boolean
+}
 
 interface Project {
   id: string
@@ -27,6 +45,9 @@ interface Project {
   githubUrl: string
   demoUrl?: string
   tags: string[]
+  stars?: number
+  forks?: number
+  updatedAt?: string
 }
 
 interface Article {
@@ -41,10 +62,68 @@ interface Article {
 }
 
 function App() {
-  const [projects] = useKV<Project[]>("projects", [])
+  const [projects, setProjects] = useKV<Project[]>("projects", [])
   const [articles] = useKV<Article[]>("articles", [])
   const [searchTerm, setSearchTerm] = useState("")
   const [selectedCategory, setSelectedCategory] = useState("all")
+  const [githubUsername, setGithubUsername] = useKV("github-username", "")
+  const [isLoadingRepos, setIsLoadingRepos] = useState(false)
+  const [repoError, setRepoError] = useState<string | null>(null)
+
+  // Fetch GitHub repositories
+  const fetchGitHubRepos = async (username: string) => {
+    if (!username.trim()) return
+
+    setIsLoadingRepos(true)
+    setRepoError(null)
+
+    try {
+      const response = await fetch(`https://api.github.com/users/${username}/repos?sort=updated&per_page=12`)
+      
+      if (!response.ok) {
+        throw new Error(response.status === 404 ? 'User not found' : 'Failed to fetch repositories')
+      }
+
+      const repos: GitHubRepo[] = await response.json()
+      
+      // Filter out forks and archived repos, convert to Project format
+      const filteredRepos = repos
+        .filter(repo => !repo.fork && !repo.archived && repo.description)
+        .map(repo => ({
+          id: repo.id.toString(),
+          title: repo.name.replace(/[-_]/g, ' ').replace(/\b\w/g, l => l.toUpperCase()),
+          description: repo.description || "No description available",
+          techStack: repo.language ? [repo.language] : [],
+          githubUrl: repo.html_url,
+          demoUrl: repo.homepage || undefined,
+          tags: repo.topics.slice(0, 5), // Limit to 5 topics
+          stars: repo.stargazers_count,
+          forks: repo.forks_count,
+          updatedAt: new Date(repo.updated_at).toLocaleDateString()
+        }))
+
+      setProjects(filteredRepos)
+    } catch (error) {
+      console.error('Error fetching GitHub repos:', error)
+      setRepoError(error instanceof Error ? error.message : 'Failed to fetch repositories')
+    } finally {
+      setIsLoadingRepos(false)
+    }
+  }
+
+  // Auto-fetch repos when username changes
+  useEffect(() => {
+    if (githubUsername) {
+      fetchGitHubRepos(githubUsername)
+    }
+  }, [githubUsername])
+
+  const handleUsernameSubmit = (e: React.FormEvent) => {
+    e.preventDefault()
+    const formData = new FormData(e.target as HTMLFormElement)
+    const username = formData.get('username') as string
+    setGithubUsername(username)
+  }
 
   const filteredArticles = (articles || []).filter(article => {
     const matchesSearch = article.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -180,76 +259,191 @@ function App() {
             <div className="text-center space-y-4">
               <h2 className="font-heading text-3xl font-bold">Software Projects</h2>
               <p className="text-muted-foreground max-w-2xl mx-auto">
-                A collection of open-source tools and applications that demonstrate practical implementations 
-                of business technology solutions.
+                A collection of open-source tools and applications automatically fetched from GitHub.
               </p>
             </div>
 
-            {(projects || []).length === 0 ? (
+            {/* GitHub Username Input */}
+            {!githubUsername && (
+              <Card className="max-w-md mx-auto">
+                <CardHeader>
+                  <CardTitle className="font-heading text-center">Connect Your GitHub</CardTitle>
+                  <CardDescription className="text-center">
+                    Enter your GitHub username to automatically display your latest repositories
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <form onSubmit={handleUsernameSubmit} className="space-y-4">
+                    <Input
+                      name="username"
+                      placeholder="e.g. octocat"
+                      required
+                    />
+                    <Button type="submit" className="w-full">
+                      <GithubLogo className="mr-2" size={16} />
+                      Fetch Repositories
+                    </Button>
+                  </form>
+                </CardContent>
+              </Card>
+            )}
+
+            {/* Loading State */}
+            {isLoadingRepos && (
+              <Card className="text-center py-12">
+                <CardContent>
+                  <div className="space-y-4">
+                    <SpinnerGap size={48} className="mx-auto text-primary animate-spin" />
+                    <div>
+                      <h3 className="font-semibold text-lg mb-2">Fetching Repositories</h3>
+                      <p className="text-muted-foreground">
+                        Loading your latest GitHub projects...
+                      </p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+
+            {/* Error State */}
+            {repoError && (
+              <Card className="text-center py-12 border-destructive/20">
+                <CardContent>
+                  <div className="space-y-4">
+                    <GithubLogo size={48} className="mx-auto text-destructive" />
+                    <div>
+                      <h3 className="font-semibold text-lg mb-2 text-destructive">Error Loading Repositories</h3>
+                      <p className="text-muted-foreground mb-4">{repoError}</p>
+                      <div className="flex gap-2 justify-center">
+                        <Button onClick={() => githubUsername && fetchGitHubRepos(githubUsername)} variant="outline">
+                          Try Again
+                        </Button>
+                        <Button onClick={() => setGithubUsername("")} variant="ghost">
+                          Change Username
+                        </Button>
+                      </div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+
+            {/* Empty State - No repos or username set */}
+            {!isLoadingRepos && !repoError && githubUsername && (projects || []).length === 0 && (
               <Card className="text-center py-12">
                 <CardContent>
                   <div className="space-y-4">
                     <GithubLogo size={48} className="mx-auto text-muted-foreground" />
                     <div>
-                      <h3 className="font-semibold text-lg mb-2">Projects Coming Soon</h3>
-                      <p className="text-muted-foreground">
-                        I'm currently working on several exciting projects. Check back soon to see my latest work!
+                      <h3 className="font-semibold text-lg mb-2">No Public Repositories Found</h3>
+                      <p className="text-muted-foreground mb-4">
+                        No public repositories with descriptions were found for @{githubUsername}
                       </p>
+                      <div className="flex gap-2 justify-center">
+                        <Button asChild>
+                          <a href={`https://github.com/${githubUsername}`} target="_blank" rel="noopener noreferrer">
+                            <GithubLogo className="mr-2" size={16} />
+                            View GitHub Profile
+                          </a>
+                        </Button>
+                        <Button onClick={() => setGithubUsername("")} variant="outline">
+                          Change Username
+                        </Button>
+                      </div>
                     </div>
-                    <Button asChild>
-                      <a href="https://github.com" target="_blank" rel="noopener noreferrer">
-                        <GithubLogo className="mr-2" size={16} />
-                        View GitHub Profile
-                      </a>
-                    </Button>
                   </div>
                 </CardContent>
               </Card>
-            ) : (
-              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {(projects || []).map((project) => (
-                  <Card key={project.id} className="hover-lift transition-all duration-200 hover:shadow-lg">
-                    <CardHeader>
-                      <div className="flex items-start justify-between">
-                        <CardTitle className="font-heading">{project.title}</CardTitle>
-                        <div className="flex gap-2">
-                          <Button size="sm" variant="ghost" asChild>
-                            <a href={project.githubUrl} target="_blank" rel="noopener noreferrer">
-                              <GithubLogo size={16} />
-                            </a>
-                          </Button>
-                          {project.demoUrl && (
+            )}
+
+            {/* Projects Grid */}
+            {!isLoadingRepos && !repoError && (projects || []).length > 0 && (
+              <>
+                <div className="flex justify-center mb-6">
+                  <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                    <span>Showing repositories for @{githubUsername}</span>
+                    <Button size="sm" variant="ghost" onClick={() => setGithubUsername("")}>
+                      Change Username
+                    </Button>
+                    <Button size="sm" variant="ghost" onClick={() => githubUsername && fetchGitHubRepos(githubUsername)}>
+                      Refresh
+                    </Button>
+                  </div>
+                </div>
+
+                <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {(projects || []).map((project) => (
+                    <Card key={project.id} className="hover-lift transition-all duration-200 hover:shadow-lg">
+                      <CardHeader>
+                        <div className="flex items-start justify-between">
+                          <CardTitle className="font-heading">{project.title}</CardTitle>
+                          <div className="flex gap-2">
                             <Button size="sm" variant="ghost" asChild>
-                              <a href={project.demoUrl} target="_blank" rel="noopener noreferrer">
-                                <ArrowUpRight size={16} />
+                              <a href={project.githubUrl} target="_blank" rel="noopener noreferrer">
+                                <GithubLogo size={16} />
                               </a>
                             </Button>
+                            {project.demoUrl && (
+                              <Button size="sm" variant="ghost" asChild>
+                                <a href={project.demoUrl} target="_blank" rel="noopener noreferrer">
+                                  <ArrowUpRight size={16} />
+                                </a>
+                              </Button>
+                            )}
+                          </div>
+                        </div>
+                        <CardDescription>{project.description}</CardDescription>
+                      </CardHeader>
+                      <CardContent>
+                        <div className="space-y-4">
+                          {/* Tech Stack */}
+                          {project.techStack.length > 0 && (
+                            <div className="flex flex-wrap gap-2">
+                              {project.techStack.map((tech) => (
+                                <Badge key={tech} variant="secondary" className="text-xs">
+                                  {tech}
+                                </Badge>
+                              ))}
+                            </div>
                           )}
+                          
+                          {/* Tags/Topics */}
+                          {project.tags.length > 0 && (
+                            <div className="flex flex-wrap gap-2">
+                              {project.tags.map((tag) => (
+                                <Badge key={tag} variant="outline" className="text-xs">
+                                  {tag}
+                                </Badge>
+                              ))}
+                            </div>
+                          )}
+
+                          {/* GitHub Stats */}
+                          <div className="flex items-center justify-between text-sm text-muted-foreground">
+                            <div className="flex items-center gap-4">
+                              {typeof project.stars === 'number' && (
+                                <div className="flex items-center gap-1">
+                                  <Star size={14} />
+                                  <span>{project.stars}</span>
+                                </div>
+                              )}
+                              {typeof project.forks === 'number' && (
+                                <div className="flex items-center gap-1">
+                                  <GitFork size={14} />
+                                  <span>{project.forks}</span>
+                                </div>
+                              )}
+                            </div>
+                            {project.updatedAt && (
+                              <span className="text-xs">Updated {project.updatedAt}</span>
+                            )}
+                          </div>
                         </div>
-                      </div>
-                      <CardDescription>{project.description}</CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="space-y-4">
-                        <div className="flex flex-wrap gap-2">
-                          {project.techStack.map((tech) => (
-                            <Badge key={tech} variant="secondary" className="text-xs">
-                              {tech}
-                            </Badge>
-                          ))}
-                        </div>
-                        <div className="flex flex-wrap gap-2">
-                          {project.tags.map((tag) => (
-                            <Badge key={tag} variant="outline" className="text-xs">
-                              {tag}
-                            </Badge>
-                          ))}
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))}
-              </div>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+              </>
             )}
           </TabsContent>
 
