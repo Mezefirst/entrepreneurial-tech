@@ -4,26 +4,54 @@
       <stop offset="0%" style="stop-color:oklch(0.45 0.15 240);stop-opacity:1" />
       <stop offset="100%" style="stop-color:oklch(0.55 0.12 290);stop-opacity:1" />
     </linearGradient>
+    <linearGradient id="professional" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:rgba(255,255,255,0.95);stop-opacity:1" />
+      <stop offset="100%" style="stop-color:rgba(255,255,255,0.85);stop-opacity:1" />
+    </linearGradient>
   </defs>
   
   <!-- Background circle -->
   <circle cx="150" cy="150" r="150" fill="url(#bg)"/>
   
-  <!-- Professional silhouette -->
+  <!-- Professional figure -->
   <g transform="translate(150, 150)">
     <!-- Head -->
-    <circle cx="0" cy="-30" r="35" fill="rgba(255,255,255,0.9)"/>
+    <circle cx="0" cy="-35" r="32" fill="url(#professional)"/>
     
-    <!-- Body/Shoulders -->
-    <path d="M -45 20 Q -45 0 -35 -5 Q -20 -15 0 -15 Q 20 -15 35 -5 Q 45 0 45 20 L 45 80 Q 45 90 35 90 L -35 90 Q -45 90 -45 80 Z" 
-          fill="rgba(255,255,255,0.9)"/>
+    <!-- Professional attire - suit jacket -->
+    <path d="M -50 25 Q -50 5 -40 -8 Q -25 -18 0 -18 Q 25 -18 40 -8 Q 50 5 50 25 L 50 85 Q 50 95 40 95 L -40 95 Q -50 95 -50 85 Z" 
+          fill="url(#professional)"/>
     
-    <!-- Subtle details for engineering theme -->
-    <circle cx="-15" cy="10" r="2" fill="rgba(255,255,255,0.6)"/>
-    <circle cx="15" cy="10" r="2" fill="rgba(255,255,255,0.6)"/>
-    <rect x="-8" y="15" width="16" height="2" rx="1" fill="rgba(255,255,255,0.6)"/>
+    <!-- Suit lapels -->
+    <path d="M -20 -15 Q -10 -18 0 -18 Q 10 -18 20 -15 L 15 5 Q 8 2 0 2 Q -8 2 -15 5 Z" 
+          fill="rgba(255,255,255,0.7)"/>
+    
+    <!-- Tie detail -->
+    <path d="M -3 -12 L 3 -12 L 4 15 Q 4 18 2 20 Q 0 22 -2 20 Q -4 18 -4 15 Z" 
+          fill="rgba(255,255,255,0.6)"/>
+    
+    <!-- Engineering/Materials Science symbols -->
+    <!-- Molecular structure hint -->
+    <g opacity="0.4" fill="rgba(255,255,255,0.8)">
+      <circle cx="-25" cy="15" r="1.5"/>
+      <circle cx="-18" cy="20" r="1.5"/>
+      <circle cx="-22" cy="25" r="1.5"/>
+      <line x1="-25" y1="15" x2="-18" y2="20" stroke="rgba(255,255,255,0.6)" stroke-width="1"/>
+      <line x1="-18" y1="20" x2="-22" y2="25" stroke="rgba(255,255,255,0.6)" stroke-width="1"/>
+    </g>
+    
+    <!-- Gear symbol for engineering -->
+    <g transform="translate(25, 18)" opacity="0.4">
+      <circle cx="0" cy="0" r="4" fill="none" stroke="rgba(255,255,255,0.8)" stroke-width="1"/>
+      <circle cx="0" cy="0" r="2" fill="rgba(255,255,255,0.6)"/>
+    </g>
+    
+    <!-- Initials -->
+    <text x="0" y="-28" text-anchor="middle" font-family="serif" font-size="18" font-weight="bold" 
+          fill="oklch(0.45 0.15 240)">MZ</text>
   </g>
   
-  <!-- Professional border -->
-  <circle cx="150" cy="150" r="148" fill="none" stroke="rgba(255,255,255,0.3)" stroke-width="4"/>
+  <!-- Professional border with engineering theme -->
+  <circle cx="150" cy="150" r="148" fill="none" stroke="rgba(255,255,255,0.4)" stroke-width="3"/>
+  <circle cx="150" cy="150" r="145" fill="none" stroke="rgba(255,255,255,0.2)" stroke-width="1"/>
 </svg>

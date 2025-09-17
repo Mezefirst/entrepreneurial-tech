@@ -1,38 +1,62 @@
 # Profile Photo Instructions
 
-## How to Replace the Profile Photo
+## How to Upload Your Professional Photo
 
-To replace the current professional placeholder with your actual photo:
+To replace the current placeholder profile photo with your actual professional photo:
 
-1. **Prepare your photo:**
-   - Use a high-quality, professional headshot
-   - Recommended size: 300x300 pixels or larger (square format works best)
-   - Supported formats: JPG, PNG, WebP
-   - File size: Keep under 500KB for optimal loading
+### Option 1: Replace the SVG file directly
+1. **Save your professional photo** as `profile-photo.jpg`, `profile-photo.png`, or `profile-photo.webp`
+2. **Add the file** to this directory (`/src/assets/images/`)
+3. **Update the import** in `/src/App.tsx` from:
+   ```typescript
+   import profilePhoto from "@/assets/images/profile-photo.svg"
+   ```
+   to:
+   ```typescript
+   import profilePhoto from "@/assets/images/profile-photo.jpg" // or .png/.webp
+   ```
 
-2. **Replace the file:**
-   - Save your photo as `profile-photo.jpg` or `profile-photo.png`
-   - Place it in this directory (`/src/assets/images/`)
-   - Delete or rename the current `profile-photo.svg`
+### Option 2: Keep the SVG filename (recommended)
+1. **Save your professional photo** with any filename (e.g., `mesfinasfaw-headshot.jpg`)
+2. **Add the file** to this directory
+3. **Rename your photo file** to `profile-photo.jpg` (or your preferred format)
+4. **Delete or rename** the current `profile-photo.svg` file
+5. **Update the import** in `/src/App.tsx` accordingly
 
-3. **Update the import (if changing file extension):**
-   - Open `/src/App.tsx`
-   - Find the line: `import profilePhoto from "@/assets/images/profile-photo.svg"`
-   - Change it to: `import profilePhoto from "@/assets/images/profile-photo.jpg"` (or `.png`)
+### Photo Requirements & Best Practices
 
-## Photo Guidelines for Professional Impact
+**Technical Requirements:**
+- **Format**: JPG, PNG, or WebP
+- **Size**: Recommended 400x400px to 800x800px (square aspect ratio)
+- **File size**: Keep under 500KB for optimal loading
 
-- **Background:** Solid color or subtle, professional background
-- **Lighting:** Even, soft lighting on your face
-- **Expression:** Confident, approachable smile
-- **Attire:** Professional clothing appropriate for engineering field
-- **Framing:** Head and shoulders visible, centered in frame
-- **Quality:** Sharp focus, good resolution
+**Professional Photo Guidelines:**
+- **High quality**: Clear, well-lit, professional headshot
+- **Background**: Clean, neutral background (solid color or subtle pattern)
+- **Composition**: Head and shoulders visible, face centered
+- **Expression**: Professional, approachable smile
+- **Attire**: Business casual or professional clothing appropriate for your field
+- **Lighting**: Even, natural lighting that doesn't cast harsh shadows
 
-## Current Setup
+**Materials Science Engineer Specific Tips:**
+- Consider wearing professional attire that reflects your engineering background
+- A lab coat or professional blazer can reinforce your expertise
+- Ensure the photo conveys both technical competence and approachability
+- Clean, professional appearance that matches the academic/industrial nature of your work
 
+### Current Placeholder
+The current `profile-photo.svg` is a professional placeholder that includes:
+- Your initials (MZ)
+- Materials science themed elements (molecular structure, engineering symbols)
+- Professional color scheme matching your site theme
+- Clean, academic styling appropriate for a materials science engineer
+
+This placeholder will work well until you upload your actual professional photo.
+
+### Avatar Component Features
 The avatar component includes:
-- Professional ring border effect
+- Professional ring border effect with primary color theme
 - Fallback initials (MZ) if photo fails to load
 - Proper alt text for accessibility
-- Responsive sizing
+- Responsive sizing (128x128px on desktop)
+- Smooth loading transitions
