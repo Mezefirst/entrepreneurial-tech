@@ -45,12 +45,15 @@ import {
   Eye,
   X,
   Clock,
-  BookOpen
+  BookOpen,
+  FileText,
+  PaperPlane
 } from "@phosphor-icons/react"
 
 interface GitHubRepo {
   id: number
   name: string
+  full_name: string
   description: string | null
   html_url: string
   homepage: string | null
@@ -68,6 +71,7 @@ interface Project {
   title: string
   description: string
   fullDescription?: string
+  readmeContent?: string // README.md content from GitHub
   techStack: string[]
   githubUrl: string
   demoUrl?: string
@@ -81,6 +85,7 @@ interface Article {
   id: string
   title: string
   excerpt: string
+  abstract?: string // New field for structured abstract
   fullContent?: string
   category: string
   tags: string[]
@@ -109,6 +114,7 @@ function App() {
       id: "1",
       title: "Time-Dependent Behavior: Creep and Stress Relaxation in Heat Treatment-free Fasteners",
       excerpt: "Investigating sustainable manufacturing solutions for the automotive industry through advanced materials analysis and characterization of fastener performance under varying thermal and mechanical conditions.",
+      abstract: "This research investigates the time-dependent mechanical behavior of heat treatment-free fasteners, focusing on creep and stress relaxation performance in automotive applications. The study addresses critical sustainability challenges by exploring alternatives to traditional heat-treated fasteners. Through systematic material characterization using advanced microscopy, X-ray diffraction, and mechanical testing protocols, we evaluated fastener performance under elevated temperatures (150°C-300°C) and varying stress conditions. Results demonstrate that properly designed heat treatment-free fasteners exhibit excellent creep resistance with deformation rates comparable to traditional alternatives. Stress relaxation testing showed minimal load loss over 1000 hours, maintaining >95% of initial preload. The elimination of heat treatment processes results in 40% reduction in energy consumption, significant carbon footprint decrease, and improved manufacturing efficiency. This research demonstrates the feasibility of high-performance fasteners without traditional heat treatment, contributing to sustainable automotive manufacturing practices.",
       fullContent: `
 # Introduction
 
@@ -162,6 +168,7 @@ The developed fasteners show excellent potential for commercial application, off
       id: "2", 
       title: "Frugal Innovation in Prosthetic Socket Design for Developing Countries",
       excerpt: "Exploring cost-effective manufacturing approaches and material selection for prosthetic devices in resource-constrained environments, focusing on accessibility and functionality.",
+      abstract: "Prosthetic technology accessibility remains a significant challenge in developing countries where traditional manufacturing approaches are cost-prohibitive and technically complex. This research explores frugal innovation principles applied to prosthetic socket design, creating functional, affordable solutions for resource-constrained environments. The study addresses high manufacturing costs, complex fitting procedures, limited material availability, and lack of maintenance support. Through extensive material research, we identified locally sourced materials including natural fiber composites, low-cost thermoplastics, and bio-compatible padding materials. Advanced CAD modeling and finite element analysis optimized socket geometry for uniform stress distribution, enhanced comfort, and simplified manufacturing. Field testing with 50 participants across various amputation levels demonstrated 85% user satisfaction, 70% cost reduction compared to traditional solutions, and successful local manufacturing implementation. The solution addresses sustainability through local material sourcing, skills transfer to local craftsmen, and establishment of regional manufacturing hubs with community-based maintenance programs.",
       fullContent: `
 # Introduction
 
@@ -259,6 +266,7 @@ This research demonstrates that frugal innovation principles can successfully ad
       id: "3",
       title: "Additive Manufacturing Applications in Sustainable Technology Solutions",
       excerpt: "Analysis of 3D printing technologies and their role in creating environmentally conscious manufacturing processes, with focus on material efficiency and waste reduction.",
+      abstract: "Additive manufacturing (AM) technologies represent a paradigm shift in production methodologies, offering unprecedented opportunities for sustainable manufacturing. This comprehensive analysis examines the role of 3D printing technologies in developing environmentally conscious manufacturing processes with emphasis on material efficiency and waste reduction strategies. The study evaluates various AM technologies including FDM, SLA, SLS, DMLS, and EBM, comparing their environmental impact against traditional manufacturing processes. Traditional manufacturing often results in up to 90% material waste in machining operations, high energy consumption, and complex supply chains. AM excels in near-net-shape production, topology optimization for lightweight designs, recycled material utilization, and on-demand production. Case studies demonstrate 60% weight reduction in aerospace turbine components, 40% material savings, and significant fuel savings through lightweight designs. Automotive applications show rapid prototyping benefits, customized tooling, and reduced assembly complexity. Medical applications highlight patient-specific implants and enhanced functionality through complex geometries. The research addresses current constraints including limited material selection and production speed limitations while identifying solutions through new sustainable materials and process optimization.",
       fullContent: `
 # Introduction
 
@@ -379,6 +387,7 @@ Continued research and development will further enhance the sustainability benef
       id: "4",
       title: "Surface Technology and Phase Transformations in Engineering Materials",
       excerpt: "Comprehensive study of surface treatment methods and their impact on material performance, examining phase transformation mechanisms in various engineering applications.",
+      abstract: "Surface technology and phase transformations play crucial roles in determining the performance characteristics of engineering materials. This comprehensive study examines various surface treatment methods including Physical Vapor Deposition (PVD), Chemical Vapor Deposition (CVD), and thermal spray processes, analyzing their relationship with phase transformation mechanisms across different engineering applications. The research investigates both diffusionless transformations (martensitic) and diffusion-controlled transformations, examining nucleation and growth mechanisms, precipitation strengthening effects, and texture development. Advanced characterization methods including SEM, TEM, X-ray diffraction, and electron backscatter diffraction were employed for microstructural analysis. Applications span aerospace components with thermal barrier coatings, automotive cylinder bore coatings, and biomedical device surface modifications. The study addresses process optimization through parameter control including temperature profiles, atmospheric composition, and time-temperature relationships. Quality assurance methods include statistical process control and non-destructive testing techniques. Future directions focus on emerging technologies including additive manufacturing of surface features, laser-based surface modification, and smart coatings with responsive properties, while considering sustainability through elimination of hazardous chemicals and energy-efficient processing methods.",
       fullContent: `
 # Introduction
 
@@ -523,6 +532,7 @@ Continued research in this field will drive the development of next-generation m
       id: "5",
       title: "Lean Manufacturing Principles in Aircraft Maintenance Operations",
       excerpt: "Implementation of lean methodologies in aerospace maintenance workflows, examining efficiency improvements and quality assurance practices in commercial aviation.",
+      abstract: "The application of lean manufacturing principles to aircraft maintenance operations represents a significant opportunity for improving efficiency, reducing costs, and enhancing safety in commercial aviation. This study examines the implementation of lean methodologies in aerospace maintenance workflows, focusing on measurable improvements in operational efficiency and quality assurance practices. The research addresses the unique challenges of aircraft maintenance including safety-critical operations, complex regulatory compliance, high-value components, and time-sensitive turnaround requirements. Implementation strategy employed comprehensive value stream mapping, 5S methodology for workplace organization, and cross-functional team formation. A Boeing 767 maintenance case study demonstrated quantifiable improvements: 30% reduction in aircraft turnaround time, 25% decrease in maintenance-related delays, 40% improvement in tool availability, 20% reduction in inventory carrying costs, and 15% increase in first-time quality rates. Technology integration included mobile devices for real-time data collection, RFID systems for tracking, and predictive analytics for maintenance scheduling. Quality assurance enhancement through error prevention techniques, standardized work instructions, and continuous monitoring systems. The study addresses implementation barriers including regulatory compliance concerns and resistance to change, providing effective mitigation strategies through regulatory authority engagement and comprehensive training programs.",
       fullContent: `
 # Introduction
 
@@ -817,6 +827,81 @@ Success requires a comprehensive approach encompassing process optimization, tec
   // Reading view state
   const [activeReadingItem, setActiveReadingItem] = useState<{type: 'project' | 'article', item: Project | Article} | null>(null)
   const [isReadingViewOpen, setIsReadingViewOpen] = useState(false)
+
+  // Contact request state
+  const [isContactDialogOpen, setIsContactDialogOpen] = useState(false)
+  const [contactForm, setContactForm] = useState({
+    name: '',
+    email: '',
+    subject: '',
+    message: '',
+    itemType: '' as 'project' | 'article' | '',
+    itemTitle: ''
+  })
+  const [isSubmittingContact, setIsSubmittingContact] = useState(false)
+
+  // Contact request functions
+  const openContactDialog = (type?: 'project' | 'article', itemTitle?: string) => {
+    setContactForm({
+      name: '',
+      email: '',
+      subject: itemTitle ? `Request for more information about: ${itemTitle}` : 'General Inquiry',
+      message: itemTitle ? `Hi Mesfinasfaw,\n\nI would like to learn more about your ${type}: "${itemTitle}". Could you please provide additional information or resources?\n\nThank you,` : '',
+      itemType: type || '',
+      itemTitle: itemTitle || ''
+    })
+    setIsContactDialogOpen(true)
+  }
+
+  const submitContactRequest = async () => {
+    if (!contactForm.name.trim() || !contactForm.email.trim() || !contactForm.message.trim()) {
+      return
+    }
+
+    setIsSubmittingContact(true)
+
+    try {
+      // Create email body
+      const emailBody = `
+Name: ${contactForm.name}
+Email: ${contactForm.email}
+Subject: ${contactForm.subject}
+
+${contactForm.itemType && contactForm.itemTitle ? `Regarding ${contactForm.itemType}: "${contactForm.itemTitle}"` : ''}
+
+Message:
+${contactForm.message}
+
+---
+Sent from your portfolio website
+      `.trim()
+
+      // Create mailto link
+      const mailtoLink = `mailto:zewge@student.chalmers.se?subject=${encodeURIComponent(contactForm.subject)}&body=${encodeURIComponent(emailBody)}`
+      
+      // Open email client
+      window.open(mailtoLink)
+      
+      // Reset form and close dialog
+      setContactForm({
+        name: '',
+        email: '',
+        subject: '',
+        message: '',
+        itemType: '',
+        itemTitle: ''
+      })
+      setIsContactDialogOpen(false)
+      
+      // Show success message (you could add a toast here)
+      console.log('Contact request sent successfully')
+      
+    } catch (error) {
+      console.error('Error sending contact request:', error)
+    } finally {
+      setIsSubmittingContact(false)
+    }
+  }
 
   // Get user info on mount
   useEffect(() => {
@@ -1251,6 +1336,93 @@ Success requires a comprehensive approach encompassing process optimization, tec
     )
   }
 
+  // Contact dialog component
+  const ContactDialog = () => (
+    <Dialog open={isContactDialogOpen} onOpenChange={setIsContactDialogOpen}>
+      <DialogContent className="max-w-md">
+        <DialogHeader>
+          <DialogTitle className="flex items-center gap-2">
+            <PaperPlane size={20} />
+            Request More Information
+          </DialogTitle>
+          <DialogDescription>
+            Send a request to learn more about this {contactForm.itemType || 'topic'}
+          </DialogDescription>
+        </DialogHeader>
+        
+        <div className="space-y-4">
+          <div className="space-y-2">
+            <label htmlFor="contact-name" className="text-sm font-medium">Name *</label>
+            <Input
+              id="contact-name"
+              placeholder="Your full name"
+              value={contactForm.name}
+              onChange={(e) => setContactForm(prev => ({ ...prev, name: e.target.value }))}
+            />
+          </div>
+          
+          <div className="space-y-2">
+            <label htmlFor="contact-email" className="text-sm font-medium">Email *</label>
+            <Input
+              id="contact-email"
+              type="email"
+              placeholder="your.email@example.com"
+              value={contactForm.email}
+              onChange={(e) => setContactForm(prev => ({ ...prev, email: e.target.value }))}
+            />
+          </div>
+          
+          <div className="space-y-2">
+            <label htmlFor="contact-subject" className="text-sm font-medium">Subject</label>
+            <Input
+              id="contact-subject"
+              placeholder="Subject"
+              value={contactForm.subject}
+              onChange={(e) => setContactForm(prev => ({ ...prev, subject: e.target.value }))}
+            />
+          </div>
+          
+          <div className="space-y-2">
+            <label htmlFor="contact-message" className="text-sm font-medium">Message *</label>
+            <Textarea
+              id="contact-message"
+              placeholder="Please describe what information you're looking for..."
+              rows={4}
+              value={contactForm.message}
+              onChange={(e) => setContactForm(prev => ({ ...prev, message: e.target.value }))}
+            />
+          </div>
+          
+          <div className="flex justify-end gap-2">
+            <Button 
+              variant="outline" 
+              onClick={() => setIsContactDialogOpen(false)}
+              disabled={isSubmittingContact}
+            >
+              Cancel
+            </Button>
+            <Button 
+              onClick={submitContactRequest}
+              disabled={!contactForm.name.trim() || !contactForm.email.trim() || !contactForm.message.trim() || isSubmittingContact}
+            >
+              {isSubmittingContact ? (
+                <>
+                  <SpinnerGap size={16} className="mr-2 animate-spin" />
+                  Sending...
+                </>
+              ) : (
+                <>
+                  <PaperPlane size={16} className="mr-2" />
+                  Send Request
+                </>
+              )}
+            </Button>
+          </div>
+        </div>
+      </DialogContent>
+    </Dialog>
+  )
+
   // Reading view component
   const ReadingView = () => {
     if (!activeReadingItem || !isReadingViewOpen) return null
@@ -1260,7 +1432,7 @@ Success requires a comprehensive approach encompassing process optimization, tec
     const article = isArticle ? item as Article : null
     const project = !isArticle ? item as Project : null
 
-    const content = isArticle ? article?.fullContent : project?.fullDescription
+    const content = isArticle ? article?.fullContent : (project?.readmeContent || project?.fullDescription)
     const itemId = `${type}-${item.id}`
 
     // Format content from markdown-like text to JSX
@@ -1368,6 +1540,14 @@ Success requires a comprehensive approach encompassing process optimization, tec
                   </Button>
                 )}
                 <SocialShareButtons type={type} item={item} />
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  onClick={() => openContactDialog(type, item.title)}
+                  title="Request more information"
+                >
+                  <PaperPlane size={16} />
+                </Button>
                 <Dialog 
                   open={activeCommentsDialog === itemId}
                   onOpenChange={(open) => setActiveCommentsDialog(open ? itemId : null)}
@@ -1435,8 +1615,41 @@ Success requires a comprehensive approach encompassing process optimization, tec
           {/* Content */}
           <div className="flex-1 overflow-y-auto">
             <div className="space-y-4">
+              {/* Abstract section for articles */}
+              {isArticle && article?.abstract && (
+                <div className="bg-muted/30 rounded-lg p-4 border-l-4 border-primary">
+                  <h3 className="font-semibold text-lg mb-3 flex items-center gap-2">
+                    <FileText size={20} className="text-primary" />
+                    Abstract
+                  </h3>
+                  <p className="text-muted-foreground leading-relaxed">{article.abstract}</p>
+                </div>
+              )}
+
+              {/* README section for projects */}
+              {!isArticle && project?.readmeContent && (
+                <div className="bg-muted/30 rounded-lg p-4 border-l-4 border-primary">
+                  <h3 className="font-semibold text-lg mb-3 flex items-center gap-2">
+                    <FileText size={20} className="text-primary" />
+                    README.md
+                  </h3>
+                  <div className="text-sm">
+                    {formatContent(project.readmeContent)}
+                  </div>
+                </div>
+              )}
+
               {content ? (
-                formatContent(content)
+                <div>
+                  {!isArticle || !article?.abstract ? (
+                    formatContent(content)
+                  ) : (
+                    <div>
+                      <h3 className="font-semibold text-xl mb-4 mt-6">Full Content</h3>
+                      {formatContent(content)}
+                    </div>
+                  )}
+                </div>
               ) : (
                 <div className="text-center py-12">
                   <BookOpen size={48} className="mx-auto mb-4 text-muted-foreground opacity-50" />
@@ -1505,6 +1718,26 @@ Success requires a comprehensive approach encompassing process optimization, tec
     setProfilePhotoUrl(null)
   }
 
+  // Fetch README content from GitHub
+  const fetchReadmeContent = async (repoFullName: string): Promise<string | null> => {
+    try {
+      const response = await fetch(`https://api.github.com/repos/${repoFullName}/readme`, {
+        headers: {
+          'Accept': 'application/vnd.github.v3.raw'
+        }
+      })
+      
+      if (response.ok) {
+        const content = await response.text()
+        return content
+      }
+      return null
+    } catch (error) {
+      console.error('Error fetching README:', error)
+      return null
+    }
+  }
+
   // Fetch GitHub repositories
   const fetchGitHubRepos = async (username: string) => {
     if (!username.trim()) return
@@ -1537,12 +1770,24 @@ Success requires a comprehensive approach encompassing process optimization, tec
           updatedAt: repo.updated_at
         }))
 
+      // Fetch README content for each repository
+      const reposWithReadme = await Promise.all(
+        filteredRepos.map(async (repo) => {
+          const repoFullName = repos.find(r => r.id.toString() === repo.id)?.full_name
+          if (repoFullName) {
+            const readmeContent = await fetchReadmeContent(repoFullName)
+            return { ...repo, readmeContent: readmeContent || undefined }
+          }
+          return repo
+        })
+      )
+
       // Store all fetched repos for selection
-      setAllFetchedRepos(filteredRepos)
+      setAllFetchedRepos(reposWithReadme)
       
       // If no projects selected yet, display all fetched repos
       if ((projects || []).length === 0) {
-        setProjects(filteredRepos)
+        setProjects(reposWithReadme)
       }
     } catch (error) {
       console.error('Error fetching GitHub repos:', error)
@@ -2430,6 +2675,14 @@ Success requires a comprehensive approach encompassing process optimization, tec
                                 </Button>
                               )}
                               <SocialShareButtons type="project" item={project} />
+                              <Button
+                                size="sm"
+                                variant="ghost"
+                                onClick={() => openContactDialog('project', project.title)}
+                                title="Request more information"
+                              >
+                                <PaperPlane size={16} />
+                              </Button>
                               <Dialog 
                                 open={activeCommentsDialog === `project-${project.id}`}
                                 onOpenChange={(open) => setActiveCommentsDialog(open ? `project-${project.id}` : null)}
@@ -2627,6 +2880,14 @@ Success requires a comprehensive approach encompassing process optimization, tec
                             </Button>
                           )}
                           <SocialShareButtons type="article" item={article} />
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            onClick={() => openContactDialog('article', article.title)}
+                            title="Request more information"
+                          >
+                            <PaperPlane size={16} />
+                          </Button>
                           <Dialog 
                             open={activeCommentsDialog === `article-${article.id}`}
                             onOpenChange={(open) => setActiveCommentsDialog(open ? `article-${article.id}` : null)}
@@ -2653,6 +2914,19 @@ Success requires a comprehensive approach encompassing process optimization, tec
                     </CardHeader>
                     <CardContent>
                       <div className="space-y-4">
+                        {/* Abstract preview */}
+                        {article.abstract && (
+                          <div className="bg-muted/20 rounded-lg p-3 border-l-2 border-primary/30">
+                            <div className="flex items-center gap-2 mb-2">
+                              <FileText size={14} className="text-primary" />
+                              <span className="text-xs font-medium text-primary">Abstract Preview</span>
+                            </div>
+                            <p className="text-sm text-muted-foreground leading-relaxed line-clamp-3">
+                              {article.abstract.substring(0, 300)}...
+                            </p>
+                          </div>
+                        )}
+                        
                         <div className="flex items-center justify-between">
                           <div className="flex flex-wrap gap-2">
                             {article.tags.map((tag) => (
@@ -2741,6 +3015,22 @@ Success requires a comprehensive approach encompassing process optimization, tec
               <Separator />
 
               <div className="text-center space-y-4">
+                <h3 className="font-heading text-xl font-semibold">Request More Information</h3>
+                <p className="text-muted-foreground">
+                  Interested in learning more about any of my projects or research? Send me a detailed request.
+                </p>
+                <Button 
+                  onClick={() => openContactDialog()}
+                  className="bg-primary hover:bg-primary/90"
+                >
+                  <PaperPlane size={16} className="mr-2" />
+                  Send Information Request
+                </Button>
+              </div>
+
+              <Separator />
+
+              <div className="text-center space-y-4">
                 <h3 className="font-heading text-xl font-semibold">Areas of Expertise</h3>
                 <div className="flex flex-wrap gap-2 justify-center">
                   {[
@@ -2785,6 +3075,9 @@ Success requires a comprehensive approach encompassing process optimization, tec
 
       {/* Reading View Modal */}
       <ReadingView />
+      
+      {/* Contact Dialog */}
+      <ContactDialog />
     </div>
   )
 }
