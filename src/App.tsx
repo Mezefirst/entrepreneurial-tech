@@ -67,7 +67,55 @@ interface Article {
 
 function App() {
   const [projects, setProjects] = useKV<Project[]>("projects", [])
-  const [articles] = useKV<Article[]>("articles", [])
+  const [articles] = useKV<Article[]>("articles", [
+    {
+      id: "1",
+      title: "Time-Dependent Behavior: Creep and Stress Relaxation in Heat Treatment-free Fasteners",
+      excerpt: "Investigating sustainable manufacturing solutions for the automotive industry through advanced materials analysis and characterization of fastener performance under varying thermal and mechanical conditions.",
+      category: "materials science",
+      tags: ["creep behavior", "stress relaxation", "automotive", "sustainable manufacturing", "fasteners"],
+      publishDate: "2024",
+      readTime: "15 min read",
+      pdfUrl: "#"
+    },
+    {
+      id: "2", 
+      title: "Frugal Innovation in Prosthetic Socket Design for Developing Countries",
+      excerpt: "Exploring cost-effective manufacturing approaches and material selection for prosthetic devices in resource-constrained environments, focusing on accessibility and functionality.",
+      category: "innovation",
+      tags: ["frugal innovation", "prosthetics", "developing countries", "accessibility", "design for manufacturing"],
+      publishDate: "2015",
+      readTime: "12 min read",
+      pdfUrl: "#"
+    },
+    {
+      id: "3",
+      title: "Additive Manufacturing Applications in Sustainable Technology Solutions",
+      excerpt: "Analysis of 3D printing technologies and their role in creating environmentally conscious manufacturing processes, with focus on material efficiency and waste reduction.",
+      category: "additive manufacturing",
+      tags: ["3D printing", "sustainability", "green technology", "material efficiency", "waste reduction"],
+      publishDate: "2024",
+      readTime: "10 min read"
+    },
+    {
+      id: "4",
+      title: "Surface Technology and Phase Transformations in Engineering Materials",
+      excerpt: "Comprehensive study of surface treatment methods and their impact on material performance, examining phase transformation mechanisms in various engineering applications.",
+      category: "materials science", 
+      tags: ["surface technology", "phase transformations", "material performance", "engineering materials"],
+      publishDate: "2024",
+      readTime: "18 min read"
+    },
+    {
+      id: "5",
+      title: "Lean Manufacturing Principles in Aircraft Maintenance Operations",
+      excerpt: "Implementation of lean methodologies in aerospace maintenance workflows, examining efficiency improvements and quality assurance practices in commercial aviation.",
+      category: "aerospace",
+      tags: ["lean manufacturing", "aircraft maintenance", "quality assurance", "aerospace", "Boeing 767"],
+      publishDate: "2023",
+      readTime: "14 min read"
+    }
+  ])
   const [searchTerm, setSearchTerm] = useState("")
   const [selectedCategory, setSelectedCategory] = useState("all")
   const [githubUsername, setGithubUsername] = useKV("github-username", "")
@@ -238,7 +286,17 @@ function App() {
               </Avatar>
               <div>
                 <h2 className="font-heading text-3xl font-bold mb-2">Mesfinasfaw Zewge</h2>
-                <p className="text-muted-foreground text-lg">Materials Science Engineer & Solution-Driven Professional</p>
+                <p className="text-muted-foreground text-lg">Materials Science Engineer & Innovation Specialist</p>
+                <div className="flex items-center justify-center gap-4 mt-4 text-sm text-muted-foreground">
+                  <div className="flex items-center gap-1">
+                    <EnvelopeSimple size={14} />
+                    <span>+46736671975</span>
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <EnvelopeSimple size={14} />
+                    <span>zewge@student.chalmers.se</span>
+                  </div>
+                </div>
               </div>
             </div>
 
@@ -249,11 +307,26 @@ function App() {
                 </CardHeader>
                 <CardContent className="prose prose-lg max-w-none">
                   <p className="text-muted-foreground leading-relaxed">
-                    I'm a motivated and solution-driven engineer with 12+ years of international work experience 
+                    I'm a motivated and solution-driven Engineer with 12+ years of international work experience 
                     and a fresh MSc in Industrial and Materials Science from Chalmers University of Technology. 
                     I specialize in the mechanical performance of engineering materials, material characterization, 
-                    phase transformations, surface technology, and additive manufacturing for sustainable solutions.
+                    phase transformations, surface technology, and additive manufacturing for sustainable solutions 
+                    in greener technology applications.
                   </p>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 my-6">
+                    <div className="text-center p-4 bg-muted/50 rounded-lg">
+                      <h4 className="font-semibold text-primary mb-2">12+ Years</h4>
+                      <p className="text-sm text-muted-foreground">International Experience</p>
+                    </div>
+                    <div className="text-center p-4 bg-muted/50 rounded-lg">
+                      <h4 className="font-semibold text-primary mb-2">Open-minded</h4>
+                      <p className="text-sm text-muted-foreground">Collaborative Team Player</p>
+                    </div>
+                    <div className="text-center p-4 bg-muted/50 rounded-lg">
+                      <h4 className="font-semibold text-primary mb-2">Passionate</h4>
+                      <p className="text-sm text-muted-foreground">Sustainable Technologies</p>
+                    </div>
+                  </div>
                   <p className="text-muted-foreground leading-relaxed">
                     My diverse background spans aerospace maintenance, product development, and materials engineering, 
                     with expertise in aircraft maintenance (Boeing 767 type-rated), CAD design, and lean manufacturing. 
@@ -268,44 +341,152 @@ function App() {
                   <CardHeader>
                     <CardTitle className="font-heading">Education</CardTitle>
                   </CardHeader>
-                  <CardContent className="space-y-3">
+                  <CardContent className="space-y-4">
                     <div>
                       <h4 className="font-semibold">MSc Industrial and Materials Science</h4>
                       <p className="text-muted-foreground text-sm">Chalmers University of Technology, 2025</p>
                       <p className="text-xs text-muted-foreground mt-1">
-                        Dissertation: "Time-Dependent Behavior: A Study on Creep and Stress Relaxation Performance for Heat Treatment-free Fasteners"
+                        Dissertation: "Time-Dependent Behavior: A Study on Creep and Stress Relaxation Performance for Heat Treatment-free Fasteners" 
+                        - Toward Sustainable Manufacturing Solutions in the Automotive Industry
                       </p>
+                      <Badge variant="secondary" className="mt-2">Member of Chalmers Student Union</Badge>
                     </div>
                     <div>
                       <h4 className="font-semibold">MSc Mechanical Engineering</h4>
                       <p className="text-muted-foreground text-sm">Halmstad University, 2015</p>
                       <p className="text-xs text-muted-foreground mt-1">
-                        Academic Achievement Award & Scholarship
+                        Development of Product and Manufacturing Technology
                       </p>
+                      <p className="text-xs text-muted-foreground">
+                        Dissertation: "Frugal Innovation of Prosthetic Socket for Developing Countries"
+                      </p>
+                      <div className="flex gap-2 mt-2">
+                        <Badge variant="secondary">Academic Achievement Award</Badge>
+                        <Badge variant="secondary">Scholarship</Badge>
+                      </div>
                     </div>
                   </CardContent>
                 </Card>
 
                 <Card>
                   <CardHeader>
-                    <CardTitle className="font-heading">Experience</CardTitle>
+                    <CardTitle className="font-heading">Professional Experience</CardTitle>
                   </CardHeader>
-                  <CardContent className="space-y-3">
+                  <CardContent className="space-y-4">
                     <div>
                       <h4 className="font-semibold">Service Engineer</h4>
-                      <p className="text-muted-foreground text-sm">Direkt Chark Göteborg AB, 2018-2023</p>
+                      <p className="text-muted-foreground text-sm">Direkt Chark Göteborg AB • 2018-2023</p>
+                      <p className="text-xs text-muted-foreground mt-1">
+                        Equipment maintenance, installation, and corrective/preventive maintenance
+                      </p>
                     </div>
                     <div>
                       <h4 className="font-semibold">Development Engineer</h4>
-                      <p className="text-muted-foreground text-sm">SWT Development, 2016</p>
+                      <p className="text-muted-foreground text-sm">SWT Development • 2016</p>
+                      <p className="text-xs text-muted-foreground mt-1">
+                        Product development for healthcare, machine optimization
+                      </p>
                     </div>
                     <div>
                       <h4 className="font-semibold">Flight Engineer</h4>
-                      <p className="text-muted-foreground text-sm">Ethiopian Airlines, 2010-2014</p>
+                      <p className="text-muted-foreground text-sm">Ethiopian Airlines • 2010-2014</p>
+                      <p className="text-xs text-muted-foreground mt-1">
+                        Aircraft maintenance (Boeing 767 type-rated), avionics, troubleshooting
+                      </p>
+                      <Badge variant="secondary" className="mt-1">Service Award 2013</Badge>
                     </div>
                     <div>
                       <h4 className="font-semibold">Project Manager</h4>
-                      <p className="text-muted-foreground text-sm">Meze Engineering, 2008-2010</p>
+                      <p className="text-muted-foreground text-sm">Meze Engineering • 2008-2010</p>
+                      <p className="text-xs text-muted-foreground mt-1">
+                        Project execution, risk analysis, stakeholder coordination
+                      </p>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+
+              {/* Skills and Licenses Section */}
+              <div className="grid md:grid-cols-2 gap-6">
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="font-heading">Core Skills</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-4">
+                      <div>
+                        <h5 className="font-semibold text-sm mb-2">Materials Science & Engineering</h5>
+                        <div className="flex flex-wrap gap-1">
+                          {[
+                            "Material Characterization", "Failure Analysis", "Surface Technology", 
+                            "Additive Manufacturing", "Phase Transformations", "Battery Materials"
+                          ].map((skill) => (
+                            <Badge key={skill} variant="outline" className="text-xs">{skill}</Badge>
+                          ))}
+                        </div>
+                      </div>
+                      <div>
+                        <h5 className="font-semibold text-sm mb-2">Software & Digital Tools</h5>
+                        <div className="flex flex-wrap gap-1">
+                          {[
+                            "CATIA V5", "SolidWorks", "MATLAB", "Python", "CAD/CAM", "3D Design"
+                          ].map((skill) => (
+                            <Badge key={skill} variant="outline" className="text-xs">{skill}</Badge>
+                          ))}
+                        </div>
+                      </div>
+                      <div>
+                        <h5 className="font-semibold text-sm mb-2">Quality & Process</h5>
+                        <div className="flex flex-wrap gap-1">
+                          {[
+                            "Six Sigma", "Lean Manufacturing", "FMEA", "Quality Assurance", "Project Management"
+                          ].map((skill) => (
+                            <Badge key={skill} variant="outline" className="text-xs">{skill}</Badge>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="font-heading">Languages & Licenses</CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <div>
+                      <h5 className="font-semibold text-sm mb-2">Languages</h5>
+                      <div className="space-y-2">
+                        <div className="flex justify-between">
+                          <span className="text-sm">Amharic</span>
+                          <Badge variant="secondary">Native</Badge>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-sm">English</span>
+                          <Badge variant="secondary">Professional</Badge>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-sm">Swedish</span>
+                          <Badge variant="secondary">Working</Badge>
+                        </div>
+                      </div>
+                    </div>
+                    <div>
+                      <h5 className="font-semibold text-sm mb-2">Professional Licenses</h5>
+                      <div className="space-y-2">
+                        <div className="flex items-center gap-2">
+                          <Badge variant="outline" className="text-xs">B License</Badge>
+                          <span className="text-sm text-muted-foreground">Swedish Driving License</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <Badge variant="outline" className="text-xs">A&P License</Badge>
+                          <span className="text-sm text-muted-foreground">Airframe & Power Plant (B1)</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <Badge variant="outline" className="text-xs">B2 License</Badge>
+                          <span className="text-sm text-muted-foreground">Aircraft Avionics Maintenance</span>
+                        </div>
+                      </div>
                     </div>
                   </CardContent>
                 </Card>
@@ -316,9 +497,10 @@ function App() {
           {/* Projects Section */}
           <TabsContent value="projects" className="space-y-8">
             <div className="text-center space-y-4">
-              <h2 className="font-heading text-3xl font-bold">Software Projects</h2>
+              <h2 className="font-heading text-3xl font-bold">Software Projects & GitHub Portfolio</h2>
               <p className="text-muted-foreground max-w-2xl mx-auto">
-                A collection of open-source tools and applications automatically fetched from GitHub.
+                My software development work showcases programming skills in Python, MATLAB, and CAD automation. 
+                Connect your GitHub profile to automatically display your latest repositories with filtering and sorting capabilities.
               </p>
             </div>
 
@@ -328,21 +510,27 @@ function App() {
                 <CardHeader>
                   <CardTitle className="font-heading text-center">Connect Your GitHub</CardTitle>
                   <CardDescription className="text-center">
-                    Enter your GitHub username to automatically display your latest repositories
+                    Enter your GitHub username to automatically display your latest repositories with advanced filtering and sorting options
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
                   <form onSubmit={handleUsernameSubmit} className="space-y-4">
                     <Input
                       name="username"
-                      placeholder="e.g. octocat"
+                      placeholder="e.g. your-github-username"
                       required
                     />
                     <Button type="submit" className="w-full">
                       <GithubLogo className="mr-2" size={16} />
-                      Fetch Repositories
+                      Fetch My Repositories
                     </Button>
                   </form>
+                  <div className="mt-4 p-3 bg-muted/50 rounded-lg">
+                    <p className="text-xs text-muted-foreground text-center">
+                      This will fetch your public repositories and display them with GitHub stats, 
+                      language filtering, and sorting by stars, forks, or last updated.
+                    </p>
+                  </div>
                 </CardContent>
               </Card>
             )}
@@ -757,13 +945,22 @@ function App() {
                 <div className="flex flex-wrap gap-2 justify-center">
                   {[
                     "Materials Science",
-                    "Additive Manufacturing", 
+                    "Material Characterization", 
+                    "Additive Manufacturing",
+                    "Surface Technology",
                     "Aircraft Maintenance",
-                    "CAD Design",
+                    "CAD Design (CATIA V5)",
+                    "SolidWorks",
                     "Product Development",
                     "Quality Assurance",
-                    "Surface Technology",
-                    "Lean Manufacturing"
+                    "Six Sigma",
+                    "Lean Manufacturing",
+                    "Python Programming",
+                    "MATLAB",
+                    "Phase Transformations",
+                    "Battery Materials",
+                    "FMEA Analysis",
+                    "Project Management"
                   ].map((interest) => (
                     <Badge key={interest} variant="secondary" className="px-3 py-1">
                       {interest}
