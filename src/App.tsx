@@ -67,6 +67,7 @@ interface Article {
 }
 
 function App() {
+  const [activeTab, setActiveTab] = useState("about")
   const [projects, setProjects] = useKV<Project[]>("projects", [])
   const [articles] = useKV<Article[]>("articles", [
     {
@@ -248,31 +249,51 @@ function App() {
               <h1 className="font-heading font-bold text-xl">Mesfin Asfaw Zewge</h1>
             </div>
             <nav className="hidden md:flex space-x-6">
-              <a href="#about" className="text-muted-foreground hover:text-foreground transition-colors">About</a>
-              <a href="#projects" className="text-muted-foreground hover:text-foreground transition-colors">Projects</a>
-              <a href="#research" className="text-muted-foreground hover:text-foreground transition-colors">Research</a>
-              <a href="#contact" className="text-muted-foreground hover:text-foreground transition-colors">Contact</a>
+              <button 
+                onClick={() => setActiveTab("about")}
+                className={`transition-colors ${activeTab === "about" ? "text-primary font-medium" : "text-muted-foreground hover:text-foreground"}`}
+              >
+                About
+              </button>
+              <button 
+                onClick={() => setActiveTab("projects")}
+                className={`transition-colors ${activeTab === "projects" ? "text-primary font-medium" : "text-muted-foreground hover:text-foreground"}`}
+              >
+                Projects
+              </button>
+              <button 
+                onClick={() => setActiveTab("research")}
+                className={`transition-colors ${activeTab === "research" ? "text-primary font-medium" : "text-muted-foreground hover:text-foreground"}`}
+              >
+                Research
+              </button>
+              <button 
+                onClick={() => setActiveTab("contact")}
+                className={`transition-colors ${activeTab === "contact" ? "text-primary font-medium" : "text-muted-foreground hover:text-foreground"}`}
+              >
+                Contact
+              </button>
             </nav>
           </div>
         </div>
       </header>
 
       <main className="container mx-auto px-6 py-12">
-        <Tabs defaultValue="about" className="space-y-8">
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-8">
           <TabsList className="grid w-full grid-cols-4 lg:w-96 mx-auto">
-            <TabsTrigger value="about" className="flex items-center gap-2">
+            <TabsTrigger value="about" className={`flex items-center gap-2 ${activeTab === "about" ? "data-[state=active]:bg-primary data-[state=active]:text-primary-foreground" : ""}`}>
               <User size={16} />
               <span className="hidden sm:inline">About</span>
             </TabsTrigger>
-            <TabsTrigger value="projects" className="flex items-center gap-2">
+            <TabsTrigger value="projects" className={`flex items-center gap-2 ${activeTab === "projects" ? "data-[state=active]:bg-primary data-[state=active]:text-primary-foreground" : ""}`}>
               <Code size={16} />
               <span className="hidden sm:inline">Projects</span>
             </TabsTrigger>
-            <TabsTrigger value="research" className="flex items-center gap-2">
+            <TabsTrigger value="research" className={`flex items-center gap-2 ${activeTab === "research" ? "data-[state=active]:bg-primary data-[state=active]:text-primary-foreground" : ""}`}>
               <Article size={16} />
               <span className="hidden sm:inline">Research</span>
             </TabsTrigger>
-            <TabsTrigger value="contact" className="flex items-center gap-2">
+            <TabsTrigger value="contact" className={`flex items-center gap-2 ${activeTab === "contact" ? "data-[state=active]:bg-primary data-[state=active]:text-primary-foreground" : ""}`}>
               <EnvelopeSimple size={16} />
               <span className="hidden sm:inline">Contact</span>
             </TabsTrigger>
