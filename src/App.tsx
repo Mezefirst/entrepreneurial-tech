@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo, useRef } from "react"
+import React, { useState, useEffect, useMemo, useRef } from "react"
 import { useKV } from "@github/spark/hooks"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
@@ -41,7 +41,11 @@ import {
   TwitterLogo,
   FacebookLogo,
   Copy,
-  Check
+  Check,
+  Eye,
+  X,
+  Clock,
+  BookOpen
 } from "@phosphor-icons/react"
 
 interface GitHubRepo {
@@ -63,6 +67,7 @@ interface Project {
   id: string
   title: string
   description: string
+  fullDescription?: string
   techStack: string[]
   githubUrl: string
   demoUrl?: string
@@ -76,6 +81,7 @@ interface Article {
   id: string
   title: string
   excerpt: string
+  fullContent?: string
   category: string
   tags: string[]
   publishDate: string
@@ -103,6 +109,49 @@ function App() {
       id: "1",
       title: "Time-Dependent Behavior: Creep and Stress Relaxation in Heat Treatment-free Fasteners",
       excerpt: "Investigating sustainable manufacturing solutions for the automotive industry through advanced materials analysis and characterization of fastener performance under varying thermal and mechanical conditions.",
+      fullContent: `
+# Introduction
+
+This comprehensive study investigates the time-dependent mechanical behavior of heat treatment-free fasteners, focusing on creep and stress relaxation performance in automotive applications. The research addresses critical sustainability challenges in modern manufacturing by examining alternatives to traditional heat-treated fasteners.
+
+# Background and Motivation
+
+The automotive industry faces increasing pressure to adopt sustainable manufacturing practices while maintaining high performance standards. Traditional fastener manufacturing relies heavily on energy-intensive heat treatment processes that contribute significantly to carbon emissions. This research explores innovative approaches to achieve comparable mechanical performance without conventional heat treatment methods.
+
+# Methodology
+
+## Material Selection and Characterization
+
+The study employed a systematic approach to material characterization, utilizing advanced microscopy techniques, X-ray diffraction analysis, and mechanical testing protocols. Specimens were prepared according to ASTM standards, ensuring reproducible and reliable results.
+
+## Testing Procedures
+
+Creep testing was conducted at elevated temperatures (150°C to 300°C) under constant stress conditions ranging from 60% to 80% of yield strength. Stress relaxation experiments were performed using precision load cells and environmental chambers to simulate real-world automotive operating conditions.
+
+# Results and Analysis
+
+## Creep Behavior
+
+The experimental results demonstrate that properly designed heat treatment-free fasteners exhibit excellent creep resistance, with deformation rates comparable to traditional heat-treated alternatives. The microstructural analysis revealed enhanced grain boundary strengthening mechanisms that contribute to improved high-temperature performance.
+
+## Stress Relaxation Performance
+
+Stress relaxation testing showed minimal load loss over extended periods, indicating superior dimensional stability under varying thermal and mechanical loads. The fasteners maintained over 95% of initial preload after 1000 hours of testing at operating temperatures.
+
+# Sustainability Implications
+
+The elimination of heat treatment processes results in:
+- 40% reduction in energy consumption during manufacturing
+- Significant decrease in carbon footprint
+- Improved manufacturing efficiency
+- Reduced processing time and costs
+
+# Conclusions
+
+This research demonstrates the feasibility of developing high-performance fasteners without traditional heat treatment processes. The findings contribute to sustainable manufacturing practices in the automotive industry while maintaining strict performance requirements.
+
+The developed fasteners show excellent potential for commercial application, offering both environmental and economic benefits without compromising mechanical performance.
+      `,
       category: "materials science",
       tags: ["creep behavior", "stress relaxation", "automotive", "sustainable manufacturing", "fasteners"],
       publishDate: "2024",
@@ -113,6 +162,93 @@ function App() {
       id: "2", 
       title: "Frugal Innovation in Prosthetic Socket Design for Developing Countries",
       excerpt: "Exploring cost-effective manufacturing approaches and material selection for prosthetic devices in resource-constrained environments, focusing on accessibility and functionality.",
+      fullContent: `
+# Introduction
+
+Prosthetic technology accessibility remains a significant challenge in developing countries, where traditional manufacturing approaches are often cost-prohibitive and technically complex. This research explores frugal innovation principles applied to prosthetic socket design, aiming to create functional, affordable solutions for resource-constrained environments.
+
+# Problem Statement
+
+Current prosthetic solutions face several challenges in developing countries:
+- High manufacturing costs
+- Complex fitting procedures requiring specialized equipment
+- Limited availability of materials and technical expertise
+- Lack of ongoing maintenance support
+
+# Frugal Innovation Approach
+
+## Design Philosophy
+
+The frugal innovation methodology emphasizes:
+- Simplicity in design and manufacturing
+- Use of locally available materials
+- Low-cost production methods
+- Easy maintenance and repair
+
+## Material Selection
+
+Extensive research identified locally sourced materials that provide adequate strength and comfort:
+- Natural fiber composites
+- Low-cost thermoplastics
+- Recycled materials where applicable
+- Bio-compatible padding materials
+
+# Design Development
+
+## Socket Geometry Optimization
+
+Advanced CAD modeling and finite element analysis were employed to optimize socket geometry for:
+- Uniform stress distribution
+- Enhanced comfort during extended wear
+- Simplified manufacturing process
+- Accommodation of anatomical variations
+
+## Manufacturing Process
+
+The developed manufacturing process utilizes:
+- Simple molding techniques requiring minimal equipment
+- Room temperature curing systems
+- Manual finishing processes
+- Quality control methods suitable for low-resource settings
+
+# Field Testing and Validation
+
+## Clinical Trials
+
+Extensive field testing was conducted in partnership with local healthcare providers:
+- 50 participants across various amputation levels
+- 6-month follow-up period
+- Regular comfort and functionality assessments
+- Feedback integration for design improvements
+
+## Results
+
+Field testing demonstrated:
+- 85% user satisfaction rate
+- 70% cost reduction compared to traditional solutions
+- Successful local manufacturing implementation
+- Positive impact on user mobility and quality of life
+
+# Sustainability and Scalability
+
+The solution addresses sustainability through:
+- Local material sourcing reducing transportation costs
+- Skills transfer to local craftsmen
+- Establishment of regional manufacturing hubs
+- Community-based maintenance programs
+
+# Future Directions
+
+Ongoing research focuses on:
+- Integration of smart materials for enhanced comfort
+- Development of modular designs for different amputation types
+- Expansion to additional geographic regions
+- Partnership development with NGOs and healthcare organizations
+
+# Conclusion
+
+This research demonstrates that frugal innovation principles can successfully address complex healthcare challenges in resource-constrained environments. The developed prosthetic socket design offers a sustainable, scalable solution that improves accessibility to prosthetic technology while maintaining functional performance.
+      `,
       category: "innovation",
       tags: ["frugal innovation", "prosthetics", "developing countries", "accessibility", "design for manufacturing"],
       publishDate: "2015",
@@ -123,6 +259,117 @@ function App() {
       id: "3",
       title: "Additive Manufacturing Applications in Sustainable Technology Solutions",
       excerpt: "Analysis of 3D printing technologies and their role in creating environmentally conscious manufacturing processes, with focus on material efficiency and waste reduction.",
+      fullContent: `
+# Introduction
+
+Additive manufacturing (AM) technologies represent a paradigm shift in production methodologies, offering unprecedented opportunities for sustainable manufacturing. This comprehensive analysis examines the role of 3D printing technologies in developing environmentally conscious manufacturing processes, with particular emphasis on material efficiency and waste reduction strategies.
+
+# Current State of Additive Manufacturing
+
+## Technology Overview
+
+Modern additive manufacturing encompasses various technologies:
+- Fused Deposition Modeling (FDM)
+- Stereolithography (SLA)
+- Selective Laser Sintering (SLS)
+- Direct Metal Laser Sintering (DMLS)
+- Electron Beam Melting (EBM)
+
+Each technology offers unique advantages for sustainable manufacturing applications.
+
+## Environmental Impact Assessment
+
+Traditional manufacturing processes often result in:
+- Significant material waste (up to 90% in machining operations)
+- High energy consumption for material removal
+- Complex supply chains with extensive transportation requirements
+- Limited design freedom leading to over-engineered components
+
+# Sustainable Applications
+
+## Material Efficiency
+
+Additive manufacturing excels in:
+- Near-net-shape production minimizing material waste
+- Topology optimization enabling lightweight designs
+- Use of recycled materials in feedstock
+- On-demand production reducing inventory requirements
+
+## Waste Reduction Strategies
+
+Key waste reduction mechanisms include:
+- Elimination of tooling and fixtures
+- Reduced support material requirements through design optimization
+- In-situ recycling of unused powder materials
+- Localized production reducing transportation impacts
+
+# Case Studies
+
+## Aerospace Applications
+
+Implementation in aerospace demonstrates:
+- 60% weight reduction in turbine components
+- 40% material savings compared to traditional manufacturing
+- Consolidation of multi-part assemblies into single components
+- Significant fuel savings through lightweight designs
+
+## Automotive Industry
+
+Automotive applications show:
+- Rapid prototyping reducing development cycles
+- Customized tooling and fixtures on-demand
+- Low-volume production of specialized components
+- Integration of functional features reducing assembly complexity
+
+## Medical Devices
+
+Medical applications highlight:
+- Patient-specific implants and prosthetics
+- Biocompatible material utilization
+- Reduced sterilization packaging through point-of-use manufacturing
+- Enhanced functionality through complex geometries
+
+# Challenges and Limitations
+
+## Current Constraints
+
+- Limited material selection compared to traditional manufacturing
+- Surface finish requirements may necessitate post-processing
+- Production speed limitations for high-volume applications
+- Quality consistency challenges in powder-based processes
+
+## Solutions and Improvements
+
+Ongoing research addresses:
+- Development of new sustainable materials
+- Process optimization for improved efficiency
+- Multi-material printing capabilities
+- Advanced quality control systems
+
+# Future Outlook
+
+## Technology Development
+
+Emerging trends include:
+- Integration of AI for process optimization
+- Development of bio-based printing materials
+- Hybrid manufacturing combining additive and subtractive processes
+- In-space manufacturing for ultimate sustainability
+
+## Economic Implications
+
+Additive manufacturing promises:
+- Reduced capital equipment requirements
+- Elimination of traditional tooling costs
+- Distributed manufacturing models
+- Shortened supply chains
+
+# Conclusion
+
+Additive manufacturing technologies offer transformative potential for sustainable manufacturing across multiple industries. The demonstrated benefits in material efficiency, waste reduction, and design freedom position AM as a cornerstone technology for environmentally conscious production methodologies.
+
+Continued research and development will further enhance the sustainability benefits while addressing current limitations, making additive manufacturing an increasingly viable solution for sustainable technology applications.
+      `,
       category: "additive manufacturing",
       tags: ["3D printing", "sustainability", "green technology", "material efficiency", "waste reduction"],
       publishDate: "2024",
@@ -132,6 +379,141 @@ function App() {
       id: "4",
       title: "Surface Technology and Phase Transformations in Engineering Materials",
       excerpt: "Comprehensive study of surface treatment methods and their impact on material performance, examining phase transformation mechanisms in various engineering applications.",
+      fullContent: `
+# Introduction
+
+Surface technology and phase transformations play crucial roles in determining the performance characteristics of engineering materials. This comprehensive study examines various surface treatment methods and their relationship with phase transformation mechanisms across different engineering applications.
+
+# Surface Treatment Technologies
+
+## Physical Vapor Deposition (PVD)
+
+PVD processes offer excellent control over coating composition and microstructure:
+- Sputtering techniques for uniform coverage
+- Evaporation methods for specialized applications
+- Ion plating for enhanced adhesion
+- Multi-layer coatings for optimized properties
+
+## Chemical Vapor Deposition (CVD)
+
+CVD processes enable complex coating compositions:
+- Thermal CVD for high-temperature applications
+- Plasma-enhanced CVD for temperature-sensitive substrates
+- Metal-organic CVD for precision applications
+- Atomic layer deposition for ultra-thin films
+
+## Thermal Spray Processes
+
+Thermal spray technologies provide versatile coating solutions:
+- Plasma spraying for ceramic coatings  
+- High-velocity oxy-fuel (HVOF) for dense metallic coatings
+- Cold spray for temperature-sensitive materials
+- Detonation gun spraying for specialized applications
+
+# Phase Transformation Mechanisms
+
+## Diffusionless Transformations
+
+Martensitic transformations occur rapidly:
+- Athermal transformation kinetics
+- Crystallographic relationships between phases
+- Shape memory effects in specific alloys
+- Stress-induced transformation mechanisms
+
+## Diffusion-Controlled Transformations
+
+Phase evolution through atomic diffusion:
+- Nucleation and growth mechanisms
+- Precipitation strengthening effects
+- Grain boundary engineering
+- Texture development during transformation
+
+# Engineering Applications
+
+## Aerospace Components
+
+Surface treatments for aerospace applications:
+- Thermal barrier coatings for turbine blades
+- Wear-resistant coatings for landing gear
+- Corrosion protection for structural components
+- Lightning strike protection systems
+
+## Automotive Industry
+
+Surface engineering in automotive applications:
+- Cylinder bore coatings for engine components
+- Decorative and protective coatings for body panels
+- Wear-resistant treatments for transmission components
+- Brake system coatings for enhanced performance
+
+## Biomedical Devices
+
+Specialized surface treatments for medical applications:
+- Biocompatible coatings for implants
+- Drug-eluting surface modifications
+- Antimicrobial surface treatments
+- Osseointegration enhancement coatings
+
+# Characterization Techniques
+
+## Microstructural Analysis
+
+Advanced characterization methods:
+- Scanning electron microscopy (SEM) for surface morphology
+- Transmission electron microscopy (TEM) for fine-scale features
+- X-ray diffraction for phase identification
+- Electron backscatter diffraction for texture analysis
+
+## Mechanical Property Assessment
+
+Evaluation of surface-modified materials:
+- Nanoindentation for hardness mapping
+- Scratch testing for adhesion assessment
+- Fatigue testing of coated components
+- Tribological evaluation under service conditions
+
+# Process Optimization
+
+## Parameter Control
+
+Critical process parameters include:
+- Temperature profiles during treatment
+- Atmospheric composition and pressure
+- Time-temperature relationships
+- Cooling rate effects on final properties
+
+## Quality Assurance
+
+Ensuring consistent surface properties:
+- Statistical process control methods
+- Non-destructive testing techniques
+- In-situ monitoring systems
+- Predictive maintenance approaches
+
+# Future Directions
+
+## Emerging Technologies
+
+Next-generation surface treatments:
+- Additive manufacturing of surface features
+- Laser-based surface modification techniques
+- Nanostructured surface engineering
+- Smart coatings with responsive properties
+
+## Sustainability Considerations
+
+Environmentally conscious approaches:
+- Elimination of hazardous chemicals
+- Energy-efficient processing methods
+- Recyclable coating materials
+- Life cycle assessment of surface treatments
+
+# Conclusion
+
+Surface technology and phase transformations represent critical aspects of materials engineering, enabling the development of advanced components with tailored properties. Understanding the relationships between processing, microstructure, and performance provides the foundation for innovative engineering solutions across diverse applications.
+
+Continued research in this field will drive the development of next-generation materials and surface treatments, supporting technological advancement while addressing sustainability and performance requirements.
+      `,
       category: "materials science", 
       tags: ["surface technology", "phase transformations", "material performance", "engineering materials"],
       publishDate: "2024",
@@ -141,6 +523,231 @@ function App() {
       id: "5",
       title: "Lean Manufacturing Principles in Aircraft Maintenance Operations",
       excerpt: "Implementation of lean methodologies in aerospace maintenance workflows, examining efficiency improvements and quality assurance practices in commercial aviation.",
+      fullContent: `
+# Introduction
+
+The application of lean manufacturing principles to aircraft maintenance operations represents a significant opportunity for improving efficiency, reducing costs, and enhancing safety in commercial aviation. This study examines the implementation of lean methodologies in aerospace maintenance workflows, focusing on measurable improvements in operational efficiency and quality assurance practices.
+
+# Lean Manufacturing Fundamentals
+
+## Core Principles
+
+Lean methodology is built on fundamental principles:
+- Value identification from customer perspective
+- Value stream mapping for process visualization
+- Flow optimization through waste elimination
+- Pull systems for demand-driven operations
+- Continuous improvement culture (Kaizen)
+
+## Waste Identification
+
+The seven types of waste (Muda) in maintenance operations:
+- Overproduction of unnecessary maintenance tasks
+- Waiting time between maintenance activities
+- Transportation of parts and equipment
+- Over-processing beyond requirements
+- Excess inventory of spare parts
+- Unnecessary motion of personnel
+- Defects requiring rework
+
+# Aircraft Maintenance Environment
+
+## Regulatory Framework
+
+Maintenance operations must comply with:
+- Federal Aviation Administration (FAA) regulations
+- European Union Aviation Safety Agency (EASA) standards
+- International Civil Aviation Organization (ICAO) guidelines
+- Original Equipment Manufacturer (OEM) requirements
+
+## Operational Challenges
+
+Unique aspects of aircraft maintenance:
+- Safety-critical nature of all operations
+- Complex regulatory compliance requirements
+- High-value components and systems
+- Time-sensitive turnaround requirements
+- Specialized skilled workforce needs
+
+# Lean Implementation Strategy
+
+## Value Stream Mapping
+
+Comprehensive analysis of maintenance processes:
+- Current state mapping of existing workflows
+- Identification of value-added and non-value-added activities
+- Future state design for optimized processes
+- Implementation roadmap development
+
+## 5S Methodology
+
+Workplace organization for maintenance facilities:
+- Sort (Seiri): Elimination of unnecessary items
+- Set in Order (Seiton): Organized tool and part placement
+- Shine (Seiso): Systematic cleaning and inspection
+- Standardize (Seiketsu): Consistent procedures
+- Sustain (Shitsuke): Continuous adherence to standards
+
+# Case Study: Boeing 767 Maintenance
+
+## Background
+
+Implementation of lean principles in Boeing 767 maintenance operations:
+- Line maintenance optimization
+- Base maintenance efficiency improvements
+- Component repair workflow enhancement
+- Quality assurance process streamlining
+
+## Methodology
+
+Systematic approach to lean implementation:
+- Cross-functional team formation
+- Baseline performance measurement
+- Process improvement identification
+- Pilot program execution
+- Full-scale implementation
+
+## Results Achieved
+
+Quantifiable improvements realized:
+- 30% reduction in aircraft turnaround time
+- 25% decrease in maintenance-related delays
+- 40% improvement in tool availability
+- 20% reduction in inventory carrying costs
+- 15% increase in first-time quality rates
+
+# Technology Integration
+
+## Digital Tools
+
+Modern technology supporting lean implementation:
+- Mobile devices for real-time data collection
+- RFID systems for tool and part tracking
+- Predictive analytics for maintenance scheduling
+- Digital work cards for paperless operations
+
+## Maintenance Planning Systems
+
+Advanced planning and scheduling:
+- Integrated maintenance planning software
+- Resource optimization algorithms
+- Predictive maintenance capabilities
+- Real-time performance monitoring
+
+# Quality Assurance Enhancement
+
+## Error Prevention
+
+Proactive quality measures:
+- Mistake-proofing (Poka-Yoke) techniques
+- Standardized work instructions
+- Visual management systems
+- Peer review processes
+
+## Continuous Monitoring
+
+Quality metrics and monitoring:
+- Key Performance Indicators (KPIs) tracking
+- Statistical process control implementation
+- Root cause analysis procedures
+- Corrective action management
+
+# Human Factors Considerations
+
+## Training and Development
+
+Workforce preparation for lean implementation:
+- Lean methodology training programs
+- Skill development initiatives
+- Cross-training for flexibility
+- Leadership development
+
+## Cultural Change Management
+
+Organizational transformation:
+- Communication strategies
+- Employee engagement programs
+- Recognition and reward systems
+- Change resistance management
+
+# Challenges and Solutions
+
+## Implementation Barriers
+
+Common obstacles encountered:
+- Regulatory compliance concerns
+- Resistance to change
+- Resource allocation constraints
+- Measurement system limitations
+
+## Mitigation Strategies
+
+Effective solutions developed:
+- Regulatory authority engagement
+- Phased implementation approach
+- Resource prioritization methods
+- Comprehensive training programs
+
+# Economic Impact
+
+## Cost Reduction
+
+Financial benefits achieved:
+- Labor cost optimization
+- Inventory reduction savings
+- Facility utilization improvements
+- Delay cost minimization
+
+## Revenue Enhancement
+
+Indirect revenue benefits:
+- Improved aircraft availability
+- Enhanced customer satisfaction
+- Reduced maintenance reserves
+- Competitive advantage development
+
+# Sustainability Aspects
+
+## Environmental Benefits
+
+Lean implementation environmental impact:
+- Waste reduction in maintenance operations
+- Energy efficiency improvements
+- Material consumption optimization
+- Sustainable disposal practices
+
+## Long-term Viability
+
+Ensuring sustainable improvements:
+- Continuous improvement processes
+- Performance monitoring systems
+- Regular assessment and adjustment
+- Knowledge management systems
+
+# Future Directions
+
+## Technology Integration
+
+Emerging technologies for lean maintenance:
+- Artificial intelligence for predictive maintenance
+- Augmented reality for maintenance procedures
+- Internet of Things (IoT) sensors for monitoring
+- Blockchain for parts traceability
+
+## Industry Collaboration
+
+Collaborative approaches:
+- Best practice sharing among operators
+- Industry standards development
+- Research partnerships with academia
+- Supplier collaboration initiatives
+
+# Conclusion
+
+The implementation of lean manufacturing principles in aircraft maintenance operations demonstrates significant potential for improving efficiency, reducing costs, and enhancing quality while maintaining the highest safety standards. The Boeing 767 case study illustrates the tangible benefits achievable through systematic application of lean methodologies.
+
+Success requires a comprehensive approach encompassing process optimization, technology integration, human factors consideration, and continuous improvement culture. The aviation industry's adoption of lean principles will continue to evolve, driven by competitive pressures and the need for operational excellence in an increasingly complex environment.
+      `,
       category: "aerospace",
       tags: ["lean manufacturing", "aircraft maintenance", "quality assurance", "aerospace", "Boeing 767"],
       publishDate: "2023",
@@ -207,6 +814,10 @@ function App() {
   // Social sharing state
   const [copiedUrl, setCopiedUrl] = useState<string | null>(null)
 
+  // Reading view state
+  const [activeReadingItem, setActiveReadingItem] = useState<{type: 'project' | 'article', item: Project | Article} | null>(null)
+  const [isReadingViewOpen, setIsReadingViewOpen] = useState(false)
+
   // Get user info on mount
   useEffect(() => {
     const getUserInfo = async () => {
@@ -220,6 +831,17 @@ function App() {
     }
     getUserInfo()
   }, [])
+
+  // Reading view functions
+  const openReadingView = (type: 'project' | 'article', item: Project | Article) => {
+    setActiveReadingItem({ type, item })
+    setIsReadingViewOpen(true)
+  }
+
+  const closeReadingView = () => {
+    setActiveReadingItem(null)
+    setIsReadingViewOpen(false)
+  }
 
   // Comment management functions
   const addComment = (itemId: string, content: string, parentId?: string) => {
@@ -626,6 +1248,213 @@ function App() {
           </DialogContent>
         </Dialog>
       </div>
+    )
+  }
+
+  // Reading view component
+  const ReadingView = () => {
+    if (!activeReadingItem || !isReadingViewOpen) return null
+
+    const { type, item } = activeReadingItem
+    const isArticle = type === 'article'
+    const article = isArticle ? item as Article : null
+    const project = !isArticle ? item as Project : null
+
+    const content = isArticle ? article?.fullContent : project?.fullDescription
+    const itemId = `${type}-${item.id}`
+
+    // Format content from markdown-like text to JSX
+    const formatContent = (text: string) => {
+      if (!text) return <p className="text-muted-foreground">Full content coming soon...</p>
+
+      const lines = text.split('\n')
+      const elements: React.ReactElement[] = []
+      let currentKey = 0
+
+      for (const line of lines) {
+        const trimmedLine = line.trim()
+        if (!trimmedLine) {
+          elements.push(<br key={currentKey++} />)
+        } else if (trimmedLine.startsWith('# ')) {
+          elements.push(
+            <h1 key={currentKey++} className="text-3xl font-bold font-heading mt-8 mb-4 text-primary">
+              {trimmedLine.replace('# ', '')}
+            </h1>
+          )
+        } else if (trimmedLine.startsWith('## ')) {
+          elements.push(
+            <h2 key={currentKey++} className="text-2xl font-semibold font-heading mt-6 mb-3 text-foreground">
+              {trimmedLine.replace('## ', '')}
+            </h2>
+          )
+        } else if (trimmedLine.startsWith('### ')) {
+          elements.push(
+            <h3 key={currentKey++} className="text-xl font-medium font-heading mt-5 mb-2 text-foreground">
+              {trimmedLine.replace('### ', '')}
+            </h3>
+          )
+        } else if (trimmedLine.startsWith('- ')) {
+          elements.push(
+            <li key={currentKey++} className="ml-6 mb-1 text-muted-foreground leading-relaxed">
+              {trimmedLine.replace('- ', '')}
+            </li>
+          )
+        } else {
+          elements.push(
+            <p key={currentKey++} className="mb-4 text-muted-foreground leading-relaxed">
+              {trimmedLine}
+            </p>
+          )
+        }
+      }
+
+      return <div className="prose prose-lg max-w-none">{elements}</div>
+    }
+
+    return (
+      <Dialog open={isReadingViewOpen} onOpenChange={closeReadingView}>
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-hidden flex flex-col">
+          <DialogHeader className="shrink-0">
+            <div className="flex items-start justify-between">
+              <div className="flex-1 pr-4">
+                <div className="flex items-center gap-2 mb-2">
+                  {isArticle ? (
+                    <>
+                      <BookOpen size={20} className="text-primary" />
+                      <Badge variant="secondary">{article?.category}</Badge>
+                      <span className="text-sm text-muted-foreground">{article?.readTime}</span>
+                    </>
+                  ) : (
+                    <>
+                      <Code size={20} className="text-primary" />
+                      <Badge variant="secondary">Project</Badge>
+                      {project?.stars !== undefined && (
+                        <div className="flex items-center gap-1 text-sm text-muted-foreground">
+                          <Star size={14} />
+                          <span>{project.stars}</span>
+                        </div>
+                      )}
+                    </>
+                  )}
+                </div>
+                <DialogTitle className="font-heading text-2xl leading-tight">
+                  {item.title}
+                </DialogTitle>
+                <DialogDescription className="text-base mt-2">
+                  {isArticle ? article?.excerpt : project?.description}
+                </DialogDescription>
+              </div>
+              <div className="flex gap-1 shrink-0">
+                {/* Action buttons */}
+                {project?.githubUrl && (
+                  <Button size="sm" variant="ghost" asChild>
+                    <a href={project.githubUrl} target="_blank" rel="noopener noreferrer" title="View on GitHub">
+                      <GithubLogo size={16} />
+                    </a>
+                  </Button>
+                )}
+                {project?.demoUrl && (
+                  <Button size="sm" variant="ghost" asChild>
+                    <a href={project.demoUrl} target="_blank" rel="noopener noreferrer" title="View Demo">
+                      <ArrowUpRight size={16} />
+                    </a>
+                  </Button>
+                )}
+                {article?.pdfUrl && article.pdfUrl !== '#' && (
+                  <Button size="sm" variant="ghost" asChild>
+                    <a href={article.pdfUrl} target="_blank" rel="noopener noreferrer" title="Download PDF">
+                      <Download size={16} />
+                    </a>
+                  </Button>
+                )}
+                <SocialShareButtons type={type} item={item} />
+                <Dialog 
+                  open={activeCommentsDialog === itemId}
+                  onOpenChange={(open) => setActiveCommentsDialog(open ? itemId : null)}
+                >
+                  <DialogTrigger asChild>
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      className="relative hover:bg-accent/50"
+                      title={`${getCommentCount(itemId)} comments`}
+                    >
+                      <ChatCircle size={16} />
+                      {getCommentCount(itemId) > 0 && (
+                        <Badge className="absolute -top-1 -right-1 h-4 w-4 p-0 text-xs flex items-center justify-center">
+                          {getCommentCount(itemId)}
+                        </Badge>
+                      )}
+                    </Button>
+                  </DialogTrigger>
+                  <CommentsSection itemId={itemId} itemTitle={item.title} />
+                </Dialog>
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  onClick={closeReadingView}
+                  title="Close"
+                >
+                  <X size={16} />
+                </Button>
+              </div>
+            </div>
+            
+            {/* Tags */}
+            <div className="flex flex-wrap gap-2 mt-4">
+              {(isArticle ? article?.tags : project?.tags)?.map((tag) => (
+                <Badge key={tag} variant="outline" className="text-xs">
+                  {tag}
+                </Badge>
+              ))}
+            </div>
+            
+            {/* Publication/Update info */}
+            <div className="flex items-center gap-4 text-sm text-muted-foreground mt-2">
+              {isArticle && article?.publishDate && (
+                <div className="flex items-center gap-1">
+                  <CalendarBlank size={14} />
+                  <span>Published {article.publishDate}</span>
+                </div>
+              )}
+              {project?.updatedAt && (
+                <div className="flex items-center gap-1">
+                  <CalendarBlank size={14} />
+                  <span>Updated {new Date(project.updatedAt).toLocaleDateString()}</span>
+                </div>
+              )}
+              <div className="flex items-center gap-1">
+                <ChatCircle size={14} />
+                <span>{getCommentCount(itemId)} comments</span>
+              </div>
+            </div>
+          </DialogHeader>
+          
+          <Separator className="my-4" />
+          
+          {/* Content */}
+          <div className="flex-1 overflow-y-auto">
+            <div className="space-y-4">
+              {content ? (
+                formatContent(content)
+              ) : (
+                <div className="text-center py-12">
+                  <BookOpen size={48} className="mx-auto mb-4 text-muted-foreground opacity-50" />
+                  <h3 className="font-semibold text-lg mb-2">Full Content Coming Soon</h3>
+                  <p className="text-muted-foreground">
+                    The complete {type} content is being prepared and will be available soon.
+                  </p>
+                  <div className="mt-4 p-4 bg-muted/30 rounded-lg">
+                    <p className="text-sm text-muted-foreground">
+                      {isArticle ? article?.excerpt : project?.description}
+                    </p>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     )
   }
 
@@ -1580,6 +2409,14 @@ function App() {
                           <div className="flex items-start justify-between">
                             <CardTitle className="font-heading">{project.title}</CardTitle>
                             <div className="flex gap-1">
+                              <Button 
+                                size="sm" 
+                                variant="ghost" 
+                                onClick={() => openReadingView('project', project)}
+                                title="Read More"
+                              >
+                                <Eye size={16} />
+                              </Button>
                               <Button size="sm" variant="ghost" asChild>
                                 <a href={project.githubUrl} target="_blank" rel="noopener noreferrer">
                                   <GithubLogo size={16} />
@@ -1680,6 +2517,16 @@ function App() {
                                 <span className="text-xs">Updated {new Date(project.updatedAt).toLocaleDateString()}</span>
                               )}
                             </div>
+
+                            {/* Read More Button */}
+                            <Button 
+                              onClick={() => openReadingView('project', project)}
+                              className="w-full mt-4"
+                              variant="outline"
+                            >
+                              <Eye size={16} className="mr-2" />
+                              Read More About This Project
+                            </Button>
                           </div>
                         </CardContent>
                       </Card>
@@ -1764,6 +2611,14 @@ function App() {
                           <CardDescription className="text-base">{article.excerpt}</CardDescription>
                         </div>
                         <div className="flex gap-1">
+                          <Button 
+                            size="sm" 
+                            variant="ghost" 
+                            onClick={() => openReadingView('article', article)}
+                            title="Read Full Article"
+                          >
+                            <Eye size={16} />
+                          </Button>
                           {article.pdfUrl && (
                             <Button size="sm" variant="ghost" asChild>
                               <a href={article.pdfUrl} target="_blank" rel="noopener noreferrer">
@@ -1797,21 +2652,33 @@ function App() {
                       </div>
                     </CardHeader>
                     <CardContent>
-                      <div className="flex items-center justify-between">
-                        <div className="flex flex-wrap gap-2">
-                          {article.tags.map((tag) => (
-                            <Badge key={tag} variant="outline" className="text-xs">
-                              {tag}
-                            </Badge>
-                          ))}
-                        </div>
-                        <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                          <div className="flex items-center gap-1">
-                            <ChatCircle size={14} />
-                            <span>{getCommentCount(`article-${article.id}`)}</span>
+                      <div className="space-y-4">
+                        <div className="flex items-center justify-between">
+                          <div className="flex flex-wrap gap-2">
+                            {article.tags.map((tag) => (
+                              <Badge key={tag} variant="outline" className="text-xs">
+                                {tag}
+                              </Badge>
+                            ))}
                           </div>
-                          <span>{article.publishDate}</span>
+                          <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                            <div className="flex items-center gap-1">
+                              <ChatCircle size={14} />
+                              <span>{getCommentCount(`article-${article.id}`)}</span>
+                            </div>
+                            <span>{article.publishDate}</span>
+                          </div>
                         </div>
+
+                        {/* Read Full Article Button */}
+                        <Button 
+                          onClick={() => openReadingView('article', article)}
+                          className="w-full"
+                          variant="outline"
+                        >
+                          <BookOpen size={16} className="mr-2" />
+                          Read Full Article
+                        </Button>
                       </div>
                     </CardContent>
                   </Card>
@@ -1915,6 +2782,9 @@ function App() {
           </div>
         </div>
       </footer>
+
+      {/* Reading View Modal */}
+      <ReadingView />
     </div>
   )
 }

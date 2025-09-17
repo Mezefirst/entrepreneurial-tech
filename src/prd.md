@@ -31,7 +31,8 @@
 **Key Moments**: 
 1. GitHub integration demonstrating real-time technical activity
 2. Advanced project filtering showing depth of technical work
-3. Research section establishing academic credibility
+3. Full-content reading experience for deep engagement with projects and research
+4. Interactive commenting fostering professional discussions and community building
 
 ## Essential Features
 
@@ -49,6 +50,11 @@
 - **Functionality**: Full-featured commenting system for both projects and research articles with nested replies, likes, and user authentication
 - **Purpose**: Enables meaningful engagement between visitors and content, fostering academic and professional discussions
 - **Success Criteria**: Threaded conversations, persistent comments, user-friendly interface, real-time updates
+
+### Full-Content Reading Experience
+- **Functionality**: Dedicated reading view for both projects and research articles with full content display, enhanced typography, and integrated interaction features
+- **Purpose**: Provides immersive reading experience that encourages deep engagement with content while maintaining commenting and sharing capabilities
+- **Success Criteria**: Clean, readable full-content layout, seamless access from card previews, integrated comments visible within reading view
 
 ### Professional About Section
 - **Functionality**: Comprehensive background including education, experience, and expertise areas with photo upload capability
