@@ -876,13 +876,13 @@ Success requires a comprehensive approach encompassing process optimization, tec
   }
 
   const defaultProfileData: ProfileData = {
-    name: "Mesfin Asfaw Zewge",
-    title: "Materials Science Engineer & Innovation Specialist",
+    name: "Mesfinasfaw Zewge",
+    title: "Materials Science Engineer & AI Innovation Specialist",
     phone: "+46736671975",
     email: "zewge@student.chalmers.se",
     alternateEmail: "mazefirst@gmail.com",
     bio: "I'm a motivated and solution-driven Engineer with 12+ years of international work experience and a fresh MSc in Industrial and Materials Science from Chalmers University of Technology. I specialize in the mechanical performance of engineering materials, material characterization, phase transformations, surface technology, and additive manufacturing for sustainable solutions in greener technology applications. My passion lies in developing sustainable solutions through the integration of AI technology to drive innovation in materials science and manufacturing processes.",
-    secondaryBio: "My diverse background spans aerospace maintenance, product development, and materials engineering, with expertise in aircraft maintenance (Boeing 767 type-rated), CAD design, and lean manufacturing. I'm passionate about developing sustainable solutions through AI technology integration and committed to delivering quality-driven solutions that comply with industry standards and regulations.",
+    secondaryBio: "My diverse professional journey spans aerospace maintenance with Ethiopian Airlines (Boeing 767 type-rated A&P and B2 licenses), product development engineering, project management, and advanced materials research. I bring expertise in aircraft maintenance operations, CAD design (CATIA V5, SolidWorks), Python programming, lean manufacturing methodologies, and quality assurance (Six Sigma). I'm committed to delivering innovative, AI-integrated sustainable solutions that comply with international standards and drive technological advancement in materials engineering.",
     linkedinUrl: "https://www.linkedin.com/in/mesfinasfaw-zewge-5b8b8b123",
     location: "Göteborg, Sweden"
   }
@@ -2371,11 +2371,11 @@ Sent from your portfolio website
                 <Avatar className="w-8 h-8 ring-2 ring-primary/20">
                   <AvatarImage 
                     src={profilePhotoUrl || profilePhoto} 
-                    alt={profileData?.name || "Mesfin Asfaw Zewge"} 
+                    alt={profileData?.name || "Mesfinasfaw Zewge"} 
                     className="object-cover"
                   />
                   <AvatarFallback className="bg-primary text-primary-foreground font-bold text-sm">
-                    {(profileData?.name || "Mesfin Zewge").split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2)}
+                    {(profileData?.name || "Mesfinasfaw Zewge").split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2)}
                   </AvatarFallback>
                 </Avatar>
                 {/* Quick upload button for header */}
@@ -2394,7 +2394,7 @@ Sent from your portfolio website
                   )}
                 </Button>
               </div>
-              <h1 className="font-heading font-bold text-xl">{profileData?.name || "Mesfin Asfaw Zewge"}</h1>
+              <h1 className="font-heading font-bold text-xl">{profileData?.name || "Mesfinasfaw Zewge"}</h1>
             </div>
             <nav className="hidden md:flex space-x-6">
               <button 
@@ -2463,11 +2463,11 @@ Sent from your portfolio website
                 <Avatar className="w-32 h-32 mx-auto ring-4 ring-primary/20 ring-offset-4 ring-offset-background">
                   <AvatarImage 
                     src={profilePhotoUrl || profilePhoto} 
-                    alt={`${profileData?.name || "Mesfin Asfaw Zewge"} - ${profileData?.title || "Materials Science Engineer"}`} 
+                    alt={`${profileData?.name || "Mesfinasfaw Zewge"} - ${profileData?.title || "Materials Science Engineer"}`} 
                     className="object-cover"
                   />
                   <AvatarFallback className="text-2xl bg-primary text-primary-foreground">
-                    {(profileData?.name || "Mesfin Zewge").split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2)}
+                    {(profileData?.name || "Mesfinasfaw Zewge").split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2)}
                   </AvatarFallback>
                 </Avatar>
                 
@@ -2612,7 +2612,7 @@ Sent from your portfolio website
                     </div>
                   ) : (
                     <>
-                      <h2 className="font-heading text-3xl font-bold mb-2">{profileData?.name || "Mesfin Asfaw Zewge"}</h2>
+                      <h2 className="font-heading text-3xl font-bold mb-2">{profileData?.name || "Mesfinasfaw Zewge"}</h2>
                       <Button
                         size="sm"
                         variant="ghost"
@@ -2634,7 +2634,7 @@ Sent from your portfolio website
                     placeholder="Professional Title"
                   />
                 ) : (
-                  <p className="text-muted-foreground text-lg">{profileData?.title || "Materials Science Engineer & Innovation Specialist"}</p>
+                  <p className="text-muted-foreground text-lg">{profileData?.title || "Materials Science Engineer & AI Innovation Specialist"}</p>
                 )}
                 
                 <div className="flex items-center justify-center gap-4 mt-4 text-sm text-muted-foreground">
@@ -2803,18 +2803,22 @@ Sent from your portfolio website
                       <p className="text-muted-foreground leading-relaxed">
                         {profileData?.bio || "I'm a motivated and solution-driven Engineer with 12+ years of international work experience and a fresh MSc in Industrial and Materials Science from Chalmers University of Technology. I specialize in the mechanical performance of engineering materials, material characterization, phase transformations, surface technology, and additive manufacturing for sustainable solutions in greener technology applications. My passion lies in developing sustainable solutions through the integration of AI technology to drive innovation in materials science and manufacturing processes."}
                       </p>
-                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 my-6">
+                      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 my-6">
                         <div className="text-center p-4 bg-muted/50 rounded-lg">
                           <h4 className="font-semibold text-primary mb-2">12+ Years</h4>
                           <p className="text-sm text-muted-foreground">International Experience</p>
                         </div>
                         <div className="text-center p-4 bg-muted/50 rounded-lg">
-                          <h4 className="font-semibold text-primary mb-2">Open-minded</h4>
-                          <p className="text-sm text-muted-foreground">Collaborative Team Player</p>
+                          <h4 className="font-semibold text-primary mb-2">Boeing 767</h4>
+                          <p className="text-sm text-muted-foreground">Type-Rated Engineer</p>
                         </div>
                         <div className="text-center p-4 bg-muted/50 rounded-lg">
-                          <h4 className="font-semibold text-primary mb-2">Passionate</h4>
-                          <p className="text-sm text-muted-foreground">AI-Integrated Sustainable Solutions</p>
+                          <h4 className="font-semibold text-primary mb-2">AI Integration</h4>
+                          <p className="text-sm text-muted-foreground">Materials Science Innovation</p>
+                        </div>
+                        <div className="text-center p-4 bg-muted/50 rounded-lg">
+                          <h4 className="font-semibold text-primary mb-2">Sustainable</h4>
+                          <p className="text-sm text-muted-foreground">Manufacturing Solutions</p>
                         </div>
                       </div>
                       {profileData?.secondaryBio && (
@@ -2933,7 +2937,19 @@ Sent from your portfolio website
                         <div className="flex flex-wrap gap-1">
                           {[
                             "Material Characterization", "Failure Analysis", "Surface Technology", 
-                            "Additive Manufacturing", "Phase Transformations", "Battery Materials"
+                            "Additive Manufacturing", "Phase Transformations", "Battery Materials",
+                            "Creep Behavior", "Stress Relaxation", "Mechanical Testing"
+                          ].map((skill) => (
+                            <Badge key={skill} variant="outline" className="text-xs">{skill}</Badge>
+                          ))}
+                        </div>
+                      </div>
+                      <div>
+                        <h5 className="font-semibold text-sm mb-2">Aerospace & Automotive Engineering</h5>
+                        <div className="flex flex-wrap gap-1">
+                          {[
+                            "Aircraft Maintenance", "Boeing 767 Systems", "Avionics", "Airframe", 
+                            "Power Plant", "FAA Standards", "Troubleshooting", "Root Cause Analysis"
                           ].map((skill) => (
                             <Badge key={skill} variant="outline" className="text-xs">{skill}</Badge>
                           ))}
@@ -2943,17 +2959,30 @@ Sent from your portfolio website
                         <h5 className="font-semibold text-sm mb-2">Software & Digital Tools</h5>
                         <div className="flex flex-wrap gap-1">
                           {[
-                            "CATIA V5", "SolidWorks", "MATLAB", "Python", "CAD/CAM", "3D Design"
+                            "CATIA V5", "SolidWorks", "MATLAB", "Python Programming", "CAD/CAM", 
+                            "3D Design", "Microsoft Office", "Maintenix", "AM Systems"
                           ].map((skill) => (
                             <Badge key={skill} variant="outline" className="text-xs">{skill}</Badge>
                           ))}
                         </div>
                       </div>
                       <div>
-                        <h5 className="font-semibold text-sm mb-2">Quality & Process</h5>
+                        <h5 className="font-semibold text-sm mb-2">Quality & Process Management</h5>
                         <div className="flex flex-wrap gap-1">
                           {[
-                            "Six Sigma", "Lean Manufacturing", "FMEA", "Quality Assurance", "Project Management"
+                            "Six Sigma", "Lean Manufacturing", "FMEA", "Quality Assurance", 
+                            "Project Management", "Agile Methods", "Statistical Process Control"
+                          ].map((skill) => (
+                            <Badge key={skill} variant="outline" className="text-xs">{skill}</Badge>
+                          ))}
+                        </div>
+                      </div>
+                      <div>
+                        <h5 className="font-semibold text-sm mb-2">AI & Innovation</h5>
+                        <div className="flex flex-wrap gap-1">
+                          {[
+                            "AI Integration", "Machine Learning", "Sustainable Technology", 
+                            "Innovation Strategy", "Technical Writing", "Research Methodology"
                           ].map((skill) => (
                             <Badge key={skill} variant="outline" className="text-xs">{skill}</Badge>
                           ))}
@@ -3013,7 +3042,7 @@ Sent from your portfolio website
             <div className="text-center space-y-4">
               <h2 className="font-heading text-3xl font-bold">Software Projects & GitHub Portfolio</h2>
               <p className="text-muted-foreground max-w-2xl mx-auto">
-                My software development work showcases programming skills in Python, MATLAB, and CAD automation with a focus on AI integration. 
+                My software development work showcases programming expertise in Python, MATLAB, CAD automation, and materials science applications with a strong focus on AI integration for sustainable engineering solutions. 
                 Connect your GitHub profile to automatically display your latest repositories with filtering and sorting capabilities.
               </p>
             </div>
@@ -3774,8 +3803,8 @@ Sent from your portfolio website
             <div className="text-center space-y-4">
               <h2 className="font-heading text-3xl font-bold">Research & Publications</h2>
               <p className="text-muted-foreground max-w-2xl mx-auto">
-                Research focus areas include materials engineering, AI-integrated sustainable manufacturing, 
-                and innovative solutions for engineering challenges in aerospace and automotive industries.
+                My research spans materials engineering with specialized focus on time-dependent behavior analysis, sustainable manufacturing processes, AI-integrated materials characterization, 
+                and innovative engineering solutions for aerospace and automotive industries. Current work includes fastener performance optimization and additive manufacturing applications.
               </p>
               
               {/* Newsletter subscription CTA */}
@@ -4017,8 +4046,9 @@ Sent from your portfolio website
             <div className="text-center space-y-4">
               <h2 className="font-heading text-3xl font-bold">Get In Touch</h2>
               <p className="text-muted-foreground max-w-2xl mx-auto">
-                Interested in collaboration on materials engineering projects, AI-integrated sustainable manufacturing solutions, 
-                or discussing innovative approaches to engineering challenges? I'd love to connect.
+                Interested in collaboration on materials engineering research, AI-integrated sustainable manufacturing solutions, 
+                aerospace maintenance expertise, or discussing innovative approaches to complex engineering challenges? I bring 12+ years of international experience 
+                and specialized knowledge in materials characterization, aircraft systems, and advanced manufacturing technologies.
               </p>
             </div>
 
@@ -4140,24 +4170,28 @@ Sent from your portfolio website
                 <h3 className="font-heading text-xl font-semibold">Areas of Expertise</h3>
                 <div className="flex flex-wrap gap-2 justify-center">
                   {[
-                    "AI & Machine Learning",
-                    "Materials Science",
-                    "Material Characterization", 
+                    "Materials Science & Engineering",
+                    "Material Characterization",
+                    "AI Integration & Machine Learning", 
                     "Additive Manufacturing",
                     "Surface Technology",
-                    "Aircraft Maintenance",
-                    "CAD Design (CATIA V5)",
-                    "SolidWorks",
-                    "Product Development",
-                    "Quality Assurance",
-                    "Six Sigma",
-                    "Lean Manufacturing",
-                    "Python Programming",
-                    "MATLAB",
                     "Phase Transformations",
+                    "Aircraft Maintenance & Avionics",
+                    "Boeing 767 Systems",
+                    "CAD Design (CATIA V5)",
+                    "SolidWorks & 3D Modeling",
+                    "Python Programming",
+                    "MATLAB & Simulation",
+                    "Sustainable Manufacturing",
+                    "Quality Assurance & Six Sigma",
+                    "Lean Manufacturing",
+                    "Product Development",
+                    "FMEA & Root Cause Analysis",
+                    "Project Management",
                     "Battery Materials",
-                    "FMEA Analysis",
-                    "Project Management"
+                    "Creep & Stress Relaxation",
+                    "Failure Analysis",
+                    "Technical Writing & Research"
                   ].map((interest) => (
                     <Badge key={interest} variant="secondary" className="px-3 py-1">
                       {interest}
