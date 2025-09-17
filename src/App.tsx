@@ -3116,142 +3116,151 @@ Sent from your portfolio website
                     </CardContent>
                   </Card>
                 </div>
-                      <DialogContent className="max-w-md">
-                        <DialogHeader>
-                          <DialogTitle>Add Specific Repository</DialogTitle>
-                          <DialogDescription>
-                            Enter the GitHub username and repository name to add a specific project to your portfolio.
-                          </DialogDescription>
-                        </DialogHeader>
-                        <div className="space-y-4">
-                          <div className="space-y-2">
-                            <label htmlFor="add-github-username" className="text-sm font-medium">GitHub Username</label>
-                            <Input
-                              id="add-github-username"
-                              placeholder="e.g. microsoft"
-                              value={tempGithubUsername}
-                              onChange={(e) => setTempGithubUsername(e.target.value)}
-                            />
-                          </div>
-                          <div className="space-y-2">
-                            <label htmlFor="add-repo-name" className="text-sm font-medium">Repository Name</label>
-                            <Input
-                              id="add-repo-name"
-                              placeholder="e.g. vscode"
-                              onKeyDown={(e) => {
-                                if (e.key === 'Enter') {
-                                  selectSpecificRepository(tempGithubUsername, e.currentTarget.value)
-                                }
-                              }}
-                            />
-                          </div>
-                          <div className="bg-muted/30 rounded-lg p-3">
-                            <p className="text-xs text-muted-foreground">
-                              Example: To add Microsoft's VS Code repository, enter "microsoft" as username and "vscode" as repository name.
-                            </p>
-                          </div>
-                          <div className="flex justify-end gap-2">
-                            <Button variant="outline" onClick={() => setIsSelectingFromGitHub(false)}>
-                              Cancel
-                            </Button>
-                            <Button 
-                              onClick={() => {
-                                const repoName = document.getElementById('add-repo-name') as HTMLInputElement
-                                selectSpecificRepository(tempGithubUsername, repoName.value)
-                              }}
-                              disabled={!tempGithubUsername.trim()}
-                            >
-                              <Plus size={16} className="mr-2" />
-                              Add Repository
-                            </Button>
-                          </div>
+
+                {/* Repository Management Controls */}
+                <div className="flex justify-center gap-4 mb-6">
+                  <Dialog open={isSelectingFromGitHub} onOpenChange={setIsSelectingFromGitHub}>
+                    <DialogTrigger asChild>
+                      <Button size="sm" variant="outline">
+                        <Plus size={14} className="mr-2" />
+                        Add Specific Repository
+                      </Button>
+                    </DialogTrigger>
+                    <DialogContent className="max-w-md">
+                      <DialogHeader>
+                        <DialogTitle>Add Specific Repository</DialogTitle>
+                        <DialogDescription>
+                          Enter the GitHub username and repository name to add a specific project to your portfolio.
+                        </DialogDescription>
+                      </DialogHeader>
+                      <div className="space-y-4">
+                        <div className="space-y-2">
+                          <label htmlFor="add-github-username" className="text-sm font-medium">GitHub Username</label>
+                          <Input
+                            id="add-github-username"
+                            placeholder="e.g. microsoft"
+                            value={tempGithubUsername}
+                            onChange={(e) => setTempGithubUsername(e.target.value)}
+                          />
                         </div>
-                      </DialogContent>
-                    </Dialog>
-                  </div>
-                  <Dialog open={isManageDialogOpen} onOpenChange={setIsManageDialogOpen}>
-                      <DialogTrigger asChild>
-                        <Button size="sm" variant="outline">
-                          <Gear size={14} className="mr-2" />
-                          Manage Repositories
-                        </Button>
-                      </DialogTrigger>
-                      <DialogContent className="max-w-2xl max-h-[600px] overflow-y-auto">
-                        <DialogHeader>
-                          <DialogTitle>Select Repositories to Display</DialogTitle>
-                          <DialogDescription>
-                            Choose which repositories from your GitHub profile you want to showcase on your portfolio.
-                          </DialogDescription>
-                        </DialogHeader>
-                        <div className="space-y-4 mt-4">
-                          <div className="flex items-center justify-between">
-                            <span className="text-sm text-muted-foreground">
-                              {selectedRepoIds.size} of {(allFetchedRepos || []).length} repositories selected
-                            </span>
-                            <div className="flex gap-2">
-                              <Button 
-                                size="sm" 
-                                variant="outline" 
-                                onClick={() => setSelectedRepoIds(new Set((allFetchedRepos || []).map(r => r.id)))}
-                              >
-                                Select All
-                              </Button>
-                              <Button 
-                                size="sm" 
-                                variant="outline" 
-                                onClick={() => setSelectedRepoIds(new Set())}
-                              >
-                                Clear All
-                              </Button>
-                            </div>
-                          </div>
-                          <div className="space-y-2 max-h-96 overflow-y-auto">
-                            {(allFetchedRepos || []).map((repo) => (
-                              <div key={repo.id} className="flex items-start space-x-3 p-3 border rounded-lg hover:bg-muted/30">
-                                <Checkbox
-                                  id={`repo-${repo.id}`}
-                                  checked={selectedRepoIds.has(repo.id)}
-                                  onCheckedChange={(checked) => handleRepoSelection(repo.id, checked === true)}
-                                  className="mt-1"
-                                />
-                                <div className="flex-1 min-w-0">
-                                  <label htmlFor={`repo-${repo.id}`} className="cursor-pointer">
-                                    <div className="flex items-center justify-between">
-                                      <h4 className="font-medium text-sm">{repo.title}</h4>
-                                      <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                                        {typeof repo.stars === 'number' && (
-                                          <div className="flex items-center gap-1">
-                                            <Star size={12} />
-                                            <span>{repo.stars}</span>
-                                          </div>
-                                        )}
-                                        {repo.techStack.length > 0 && (
-                                          <Badge variant="secondary" className="text-xs px-1 py-0">
-                                            {repo.techStack[0]}
-                                          </Badge>
-                                        )}
-                                      </div>
-                                    </div>
-                                    <p className="text-xs text-muted-foreground mt-1 line-clamp-2">
-                                      {repo.description}
-                                    </p>
-                                  </label>
-                                </div>
-                              </div>
-                            ))}
-                          </div>
+                        <div className="space-y-2">
+                          <label htmlFor="add-repo-name" className="text-sm font-medium">Repository Name</label>
+                          <Input
+                            id="add-repo-name"
+                            placeholder="e.g. vscode"
+                            onKeyDown={(e) => {
+                              if (e.key === 'Enter') {
+                                selectSpecificRepository(tempGithubUsername, e.currentTarget.value)
+                              }
+                            }}
+                          />
                         </div>
-                        <div className="flex justify-end gap-2 mt-6">
-                          <Button variant="outline" onClick={() => setIsManageDialogOpen(false)}>
+                        <div className="bg-muted/30 rounded-lg p-3">
+                          <p className="text-xs text-muted-foreground">
+                            Example: To add Microsoft's VS Code repository, enter "microsoft" as username and "vscode" as repository name.
+                          </p>
+                        </div>
+                        <div className="flex justify-end gap-2">
+                          <Button variant="outline" onClick={() => setIsSelectingFromGitHub(false)}>
                             Cancel
                           </Button>
-                          <Button onClick={applyRepoSelection}>
-                            Apply Selection
+                          <Button 
+                            onClick={() => {
+                              const repoName = document.getElementById('add-repo-name') as HTMLInputElement
+                              selectSpecificRepository(tempGithubUsername, repoName.value)
+                            }}
+                            disabled={!tempGithubUsername.trim()}
+                          >
+                            <Plus size={16} className="mr-2" />
+                            Add Repository
                           </Button>
                         </div>
-                      </DialogContent>
-                    </Dialog>
-                  </div>
+                      </div>
+                    </DialogContent>
+                  </Dialog>
+                  
+                  <Dialog open={isManageDialogOpen} onOpenChange={setIsManageDialogOpen}>
+                    <DialogTrigger asChild>
+                      <Button size="sm" variant="outline">
+                        <Gear size={14} className="mr-2" />
+                        Manage Repositories
+                      </Button>
+                    </DialogTrigger>
+                    <DialogContent className="max-w-2xl max-h-[600px] overflow-y-auto">
+                      <DialogHeader>
+                        <DialogTitle>Select Repositories to Display</DialogTitle>
+                        <DialogDescription>
+                          Choose which repositories from your GitHub profile you want to showcase on your portfolio.
+                        </DialogDescription>
+                      </DialogHeader>
+                      <div className="space-y-4 mt-4">
+                        <div className="flex items-center justify-between">
+                          <span className="text-sm text-muted-foreground">
+                            {selectedRepoIds.size} of {(allFetchedRepos || []).length} repositories selected
+                          </span>
+                          <div className="flex gap-2">
+                            <Button 
+                              size="sm" 
+                              variant="outline" 
+                              onClick={() => setSelectedRepoIds(new Set((allFetchedRepos || []).map(r => r.id)))}
+                            >
+                              Select All
+                            </Button>
+                            <Button 
+                              size="sm" 
+                              variant="outline" 
+                              onClick={() => setSelectedRepoIds(new Set())}
+                            >
+                              Clear All
+                            </Button>
+                          </div>
+                        </div>
+                        <div className="space-y-2 max-h-96 overflow-y-auto">
+                          {(allFetchedRepos || []).map((repo) => (
+                            <div key={repo.id} className="flex items-start space-x-3 p-3 border rounded-lg hover:bg-muted/30">
+                              <Checkbox
+                                id={`repo-${repo.id}`}
+                                checked={selectedRepoIds.has(repo.id)}
+                                onCheckedChange={(checked) => handleRepoSelection(repo.id, checked === true)}
+                                className="mt-1"
+                              />
+                              <div className="flex-1 min-w-0">
+                                <label htmlFor={`repo-${repo.id}`} className="cursor-pointer">
+                                  <div className="flex items-center justify-between">
+                                    <h4 className="font-medium text-sm">{repo.title}</h4>
+                                    <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                                      {typeof repo.stars === 'number' && (
+                                        <div className="flex items-center gap-1">
+                                          <Star size={12} />
+                                          <span>{repo.stars}</span>
+                                        </div>
+                                      )}
+                                      {repo.techStack.length > 0 && (
+                                        <Badge variant="secondary" className="text-xs px-1 py-0">
+                                          {repo.techStack[0]}
+                                        </Badge>
+                                      )}
+                                    </div>
+                                  </div>
+                                  <p className="text-xs text-muted-foreground mt-1 line-clamp-2">
+                                    {repo.description}
+                                  </p>
+                                </label>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                      <div className="flex justify-end gap-2 mt-6">
+                        <Button variant="outline" onClick={() => setIsManageDialogOpen(false)}>
+                          Cancel
+                        </Button>
+                        <Button onClick={applyRepoSelection}>
+                          Apply Selection
+                        </Button>
+                      </div>
+                    </DialogContent>
+                  </Dialog>
                 </div>
 
                 {/* Filtering and Sorting Controls */}
@@ -3493,7 +3502,7 @@ Sent from your portfolio website
                     ))}
                   </div>
                 )}
-              </div>
+              </>
             )}
           </TabsContent>
 
