@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from "react"
+import { useState, useEffect, useMemo, useRef } from "react"
 import { useKV } from "@github/spark/hooks"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
@@ -24,7 +24,9 @@ import {
   SpinnerGap,
   FunnelSimple,
   SortAscending,
-  CalendarBlank
+  CalendarBlank,
+  Camera,
+  Upload
 } from "@phosphor-icons/react"
 
 interface GitHubRepo {
@@ -128,6 +130,58 @@ function App() {
   const [projectSearchTerm, setProjectSearchTerm] = useState("")
   const [selectedLanguage, setSelectedLanguage] = useState("all")
   const [sortBy, setSortBy] = useState<"name" | "stars" | "forks" | "updated">("updated")
+
+  // Profile photo upload state
+  const [profilePhotoUrl, setProfilePhotoUrl] = useKV<string | null>("profile-photo-url", null)
+  const [isUploadingPhoto, setIsUploadingPhoto] = useState(false)
+  const fileInputRef = useRef<HTMLInputElement>(null)
+
+  // Handle profile photo upload
+  const handlePhotoUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0]
+    if (!file) return
+
+    // Validate file type
+    if (!file.type.startsWith('image/')) {
+      alert('Please select an image file')
+      return
+    }
+
+    // Validate file size (max 5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      alert('File size must be less than 5MB')
+      return
+    }
+
+    setIsUploadingPhoto(true)
+
+    try {
+      // Convert image to base64 data URL
+      const reader = new FileReader()
+      reader.onload = (e) => {
+        const dataUrl = e.target?.result as string
+        setProfilePhotoUrl(dataUrl)
+        setIsUploadingPhoto(false)
+      }
+      reader.onerror = () => {
+        alert('Error reading file')
+        setIsUploadingPhoto(false)
+      }
+      reader.readAsDataURL(file)
+    } catch (error) {
+      console.error('Error uploading photo:', error)
+      alert('Error uploading photo')
+      setIsUploadingPhoto(false)
+    }
+  }
+
+  const triggerPhotoUpload = () => {
+    fileInputRef.current?.click()
+  }
+
+  const removePhoto = () => {
+    setProfilePhotoUrl(null)
+  }
 
   // Fetch GitHub repositories
   const fetchGitHubRepos = async (username: string) => {
@@ -302,10 +356,73 @@ function App() {
           {/* About Section */}
           <TabsContent value="about" className="space-y-8">
             <div className="text-center space-y-6">
-              <Avatar className="w-32 h-32 mx-auto ring-4 ring-primary/20 ring-offset-4 ring-offset-background">
-                <AvatarImage src={profilePhoto} alt="Mesfin Asfaw Zewge - Materials Science Engineer" />
-                <AvatarFallback className="text-2xl bg-primary text-primary-foreground">MZ</AvatarFallback>
-              </Avatar>
+              <div className="relative inline-block">
+                <Avatar className="w-32 h-32 mx-auto ring-4 ring-primary/20 ring-offset-4 ring-offset-background">
+                  <AvatarImage 
+                    src={profilePhotoUrl || profilePhoto} 
+                    alt="Mesfin Asfaw Zewge - Materials Science Engineer" 
+                    className="object-cover"
+                  />
+                  <AvatarFallback className="text-2xl bg-primary text-primary-foreground">MZ</AvatarFallback>
+                </Avatar>
+                
+                {/* Photo upload controls */}
+                <div className="absolute -bottom-2 -right-2 flex gap-1">
+                  <Button
+                    size="sm"
+                    variant="secondary"
+                    className="h-8 w-8 rounded-full p-0 shadow-lg"
+                    onClick={triggerPhotoUpload}
+                    disabled={isUploadingPhoto}
+                  >
+                    {isUploadingPhoto ? (
+                      <SpinnerGap size={16} className="animate-spin" />
+                    ) : (
+                      <Camera size={16} />
+                    )}
+                  </Button>
+                  {profilePhotoUrl && (
+                    <Button
+                      size="sm"
+                      variant="destructive"
+                      className="h-8 w-8 rounded-full p-0 shadow-lg text-xs"
+                      onClick={removePhoto}
+                      title="Remove photo"
+                    >
+                      ×
+                    </Button>
+                  )}
+                </div>
+                
+                {/* Hidden file input */}
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept="image/*"
+                  onChange={handlePhotoUpload}
+                  className="hidden"
+                />
+              </div>
+              
+              {/* Upload instructions */}
+              {!profilePhotoUrl && (
+                <div className="mx-auto max-w-md">
+                  <Card className="border-dashed border-2 hover:border-primary/50 transition-colors">
+                    <CardContent className="pt-6 pb-4">
+                      <div className="text-center space-y-2">
+                        <Upload size={32} className="mx-auto text-muted-foreground" />
+                        <p className="text-sm text-muted-foreground">
+                          Click the camera icon to upload your professional photo
+                        </p>
+                        <p className="text-xs text-muted-foreground">
+                          Supports JPG, PNG, WebP • Max 5MB
+                        </p>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </div>
+              )}
+
               <div>
                 <h2 className="font-heading text-3xl font-bold mb-2">Mesfin Asfaw Zewge</h2>
                 <p className="text-muted-foreground text-lg">Materials Science Engineer & Innovation Specialist</p>
