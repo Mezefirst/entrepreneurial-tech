@@ -450,7 +450,8 @@ function App() {
                     and a fresh MSc in Industrial and Materials Science from Chalmers University of Technology. 
                     I specialize in the mechanical performance of engineering materials, material characterization, 
                     phase transformations, surface technology, and additive manufacturing for sustainable solutions 
-                    in greener technology applications.
+                    in greener technology applications. My passion lies in developing sustainable solutions through 
+                    the integration of AI technology to drive innovation in materials science and manufacturing processes.
                   </p>
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4 my-6">
                     <div className="text-center p-4 bg-muted/50 rounded-lg">
@@ -463,14 +464,14 @@ function App() {
                     </div>
                     <div className="text-center p-4 bg-muted/50 rounded-lg">
                       <h4 className="font-semibold text-primary mb-2">Passionate</h4>
-                      <p className="text-sm text-muted-foreground">Sustainable Technologies</p>
+                      <p className="text-sm text-muted-foreground">AI-Integrated Sustainable Solutions</p>
                     </div>
                   </div>
                   <p className="text-muted-foreground leading-relaxed">
                     My diverse background spans aerospace maintenance, product development, and materials engineering, 
                     with expertise in aircraft maintenance (Boeing 767 type-rated), CAD design, and lean manufacturing. 
-                    I'm passionate about innovations in sustainable technologies and committed to delivering quality-driven 
-                    solutions that comply with industry standards and regulations.
+                    I'm passionate about developing sustainable solutions through AI technology integration and committed 
+                    to delivering quality-driven solutions that comply with industry standards and regulations.
                   </p>
                 </CardContent>
               </Card>
@@ -638,7 +639,7 @@ function App() {
             <div className="text-center space-y-4">
               <h2 className="font-heading text-3xl font-bold">Software Projects & GitHub Portfolio</h2>
               <p className="text-muted-foreground max-w-2xl mx-auto">
-                My software development work showcases programming skills in Python, MATLAB, and CAD automation. 
+                My software development work showcases programming skills in Python, MATLAB, and CAD automation with a focus on AI integration. 
                 Connect your GitHub profile to automatically display your latest repositories with filtering and sorting capabilities.
               </p>
             </div>
@@ -944,7 +945,7 @@ function App() {
             <div className="text-center space-y-4">
               <h2 className="font-heading text-3xl font-bold">Research & Publications</h2>
               <p className="text-muted-foreground max-w-2xl mx-auto">
-                Research focus areas include materials engineering, sustainable manufacturing, 
+                Research focus areas include materials engineering, AI-integrated sustainable manufacturing, 
                 and innovative solutions for engineering challenges in aerospace and automotive industries.
               </p>
             </div>
@@ -1044,7 +1045,7 @@ function App() {
             <div className="text-center space-y-4">
               <h2 className="font-heading text-3xl font-bold">Get In Touch</h2>
               <p className="text-muted-foreground max-w-2xl mx-auto">
-                Interested in collaboration on materials engineering projects, sustainable manufacturing solutions, 
+                Interested in collaboration on materials engineering projects, AI-integrated sustainable manufacturing solutions, 
                 or discussing innovative approaches to engineering challenges? I'd love to connect.
               </p>
             </div>
@@ -1083,6 +1084,7 @@ function App() {
                 <h3 className="font-heading text-xl font-semibold">Areas of Expertise</h3>
                 <div className="flex flex-wrap gap-2 justify-center">
                   {[
+                    "AI & Machine Learning",
                     "Materials Science",
                     "Material Characterization", 
                     "Additive Manufacturing",
