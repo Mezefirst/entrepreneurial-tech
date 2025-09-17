@@ -111,7 +111,7 @@ function App() {
   const [activeTab, setActiveTab] = useState("about")
   const [projects, setProjects] = useKV<Project[]>("projects", [])
   const [allFetchedRepos, setAllFetchedRepos] = useKV<Project[]>("all-fetched-repos", [])
-  const [articles] = useKV<Article[]>("articles", [
+  const [articles, setArticles] = useKV<Article[]>("articles", [
     {
       id: "1",
       title: "Time-Dependent Behavior: Creep and Stress Relaxation in Heat Treatment-free Fasteners",
@@ -782,9 +782,16 @@ Success requires a comprehensive approach encompassing process optimization, tec
   const [isUploadingPhoto, setIsUploadingPhoto] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
 
+  // PDF upload state for research articles
+  const [isUploadingPdf, setIsUploadingPdf] = useState(false)
+  const pdfInputRef = useRef<HTMLInputElement>(null)
+  const [uploadedPdfs, setUploadedPdfs] = useKV<Record<string, string>>("uploaded-pdfs", {})
+
   // Repository management state
   const [isManageDialogOpen, setIsManageDialogOpen] = useState(false)
   const [selectedRepoIds, setSelectedRepoIds] = useState<Set<string>>(new Set())
+  const [isSelectingFromGitHub, setIsSelectingFromGitHub] = useState(false)
+  const [tempGithubUsername, setTempGithubUsername] = useState("")
 
   // Comments state
   const [comments, setComments] = useKV<Record<string, Comment[]>>("comments", {
@@ -1926,6 +1933,74 @@ Sent from your portfolio website
     fileInputRef.current?.click()
   }
 
+  // Handle PDF upload for research articles
+  const handlePdfUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0]
+    if (!file) return
+
+    // Validate file type
+    if (file.type !== 'application/pdf') {
+      alert('Please select a PDF file')
+      return
+    }
+
+    // Validate file size (max 10MB)
+    if (file.size > 10 * 1024 * 1024) {
+      alert('File size must be less than 10MB')
+      return
+    }
+
+    setIsUploadingPdf(true)
+
+    try {
+      // Convert PDF to base64 data URL
+      const reader = new FileReader()
+      reader.onload = (e) => {
+        const dataUrl = e.target?.result as string
+        const fileName = file.name
+        
+        // Store PDF with a unique key
+        const pdfId = `pdf-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`
+        setUploadedPdfs(currentPdfs => ({
+          ...currentPdfs,
+          [pdfId]: dataUrl
+        }))
+        
+        // Create a new article entry with this PDF
+        const newArticle: Article = {
+          id: `custom-${Date.now()}`,
+          title: fileName.replace('.pdf', '').replace(/[-_]/g, ' ').replace(/\b\w/g, l => l.toUpperCase()),
+          excerpt: "Custom uploaded research document. Click to read more about this work.",
+          abstract: "This is a custom uploaded research document. The full content is available in the attached PDF file.",
+          category: "uploaded research",
+          tags: ["uploaded", "research", "custom"],
+          publishDate: new Date().getFullYear().toString(),
+          readTime: "Variable",
+          pdfUrl: dataUrl
+        }
+        
+        // Add to articles list
+        setArticles(currentArticles => [...(currentArticles || []), newArticle])
+        
+        setIsUploadingPdf(false)
+        alert('PDF uploaded successfully!')
+      }
+      reader.onerror = () => {
+        alert('Error reading PDF file')
+        setIsUploadingPdf(false)
+      }
+      reader.readAsDataURL(file)
+    } catch (error) {
+      console.error('Error uploading PDF:', error)
+      alert('Error uploading PDF')
+      setIsUploadingPdf(false)
+    }
+  }
+
+  const triggerPdfUpload = () => {
+    pdfInputRef.current?.click()
+  }
+
   const removePhoto = () => {
     setProfilePhotoUrl(null)
   }
@@ -2031,6 +2106,77 @@ Sent from your portfolio website
     const selectedProjects = (allFetchedRepos || []).filter(repo => selectedRepoIds.has(repo.id))
     setProjects(selectedProjects)
     setIsManageDialogOpen(false)
+  }
+
+  // Enhanced GitHub repository selection
+  const selectSpecificRepository = async (username: string, repoName: string) => {
+    if (!username.trim() || !repoName.trim()) return
+
+    setIsLoadingRepos(true)
+    setRepoError(null)
+
+    try {
+      // Fetch specific repository
+      const response = await fetch(`https://api.github.com/repos/${username}/${repoName}`)
+      
+      if (!response.ok) {
+        throw new Error(response.status === 404 ? 'Repository not found' : 'Failed to fetch repository')
+      }
+
+      const repo: GitHubRepo = await response.json()
+      
+      // Convert to Project format
+      const project: Project = {
+        id: repo.id.toString(),
+        title: repo.name.replace(/[-_]/g, ' ').replace(/\b\w/g, l => l.toUpperCase()),
+        description: repo.description || "No description available",
+        techStack: repo.language ? [repo.language] : [],
+        githubUrl: repo.html_url,
+        demoUrl: repo.homepage || undefined,
+        tags: repo.topics.slice(0, 5),
+        stars: repo.stargazers_count,
+        forks: repo.forks_count,
+        updatedAt: repo.updated_at
+      }
+
+      // Fetch README content
+      const readmeContent = await fetchReadmeContent(repo.full_name)
+      if (readmeContent) {
+        project.readmeContent = readmeContent
+      }
+
+      // Add to projects list
+      setProjects(currentProjects => {
+        const existing = (currentProjects || []).find(p => p.id === project.id)
+        if (existing) {
+          // Update existing project
+          return (currentProjects || []).map(p => p.id === project.id ? project : p)
+        } else {
+          // Add new project
+          return [...(currentProjects || []), project]
+        }
+      })
+
+      // Update all fetched repos as well
+      setAllFetchedRepos(currentRepos => {
+        const existing = (currentRepos || []).find(p => p.id === project.id)
+        if (existing) {
+          return (currentRepos || []).map(p => p.id === project.id ? project : p)
+        } else {
+          return [...(currentRepos || []), project]
+        }
+      })
+      
+      setIsSelectingFromGitHub(false)
+      setTempGithubUsername("")
+      alert('Repository added successfully!')
+      
+    } catch (error) {
+      console.error('Error fetching specific repository:', error)
+      setRepoError(error instanceof Error ? error.message : 'Failed to fetch repository')
+    } finally {
+      setIsLoadingRepos(false)
+    }
   }
 
   // Remove a project from the displayed list
@@ -2496,34 +2642,109 @@ Sent from your portfolio website
             </div>
 
             {/* GitHub Username Input */}
-            {!githubUsername && (
-              <Card className="max-w-md mx-auto">
-                <CardHeader>
-                  <CardTitle className="font-heading text-center">Connect Your GitHub</CardTitle>
-                  <CardDescription className="text-center">
-                    Enter your GitHub username to automatically display your latest repositories with advanced filtering and sorting options
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <form onSubmit={handleUsernameSubmit} className="space-y-4">
-                    <Input
-                      name="username"
-                      placeholder="e.g. your-github-username"
-                      required
-                    />
-                    <Button type="submit" className="w-full">
-                      <GithubLogo className="mr-2" size={16} />
-                      Fetch My Repositories
-                    </Button>
-                  </form>
-                  <div className="mt-4 p-3 bg-muted/50 rounded-lg">
-                    <p className="text-xs text-muted-foreground text-center">
-                      This will fetch your public repositories and display them with GitHub stats, 
-                      language filtering, and sorting by stars, forks, or last updated.
-                    </p>
-                  </div>
-                </CardContent>
-              </Card>
+            {!githubUsername && !(allFetchedRepos || []).length && !(projects || []).length && (
+              <div className="space-y-6">
+                <Card className="max-w-md mx-auto">
+                  <CardHeader>
+                    <CardTitle className="font-heading text-center">Connect Your GitHub</CardTitle>
+                    <CardDescription className="text-center">
+                      Enter your GitHub username to automatically display your latest repositories with advanced filtering and sorting options
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <form onSubmit={handleUsernameSubmit} className="space-y-4">
+                      <Input
+                        name="username"
+                        placeholder="e.g. your-github-username"
+                        required
+                      />
+                      <Button type="submit" className="w-full">
+                        <GithubLogo className="mr-2" size={16} />
+                        Fetch My Repositories
+                      </Button>
+                    </form>
+                    <div className="mt-4 p-3 bg-muted/50 rounded-lg">
+                      <p className="text-xs text-muted-foreground text-center">
+                        This will fetch your public repositories and display them with GitHub stats, 
+                        language filtering, and sorting by stars, forks, or last updated.
+                      </p>
+                    </div>
+                  </CardContent>
+                </Card>
+                
+                <div className="text-center">
+                  <p className="text-muted-foreground mb-4">Or</p>
+                  <Card className="max-w-md mx-auto">
+                    <CardHeader>
+                      <CardTitle className="font-heading text-center">Add Specific Repository</CardTitle>
+                      <CardDescription className="text-center">
+                        Select a single repository from any GitHub user to add to your portfolio
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                      <Dialog open={isSelectingFromGitHub} onOpenChange={setIsSelectingFromGitHub}>
+                        <DialogTrigger asChild>
+                          <Button variant="outline" className="w-full">
+                            <Plus className="mr-2" size={16} />
+                            Select Specific Repository
+                          </Button>
+                        </DialogTrigger>
+                        <DialogContent className="max-w-md">
+                          <DialogHeader>
+                            <DialogTitle>Add Specific Repository</DialogTitle>
+                            <DialogDescription>
+                              Enter the GitHub username and repository name to add a specific project to your portfolio.
+                            </DialogDescription>
+                          </DialogHeader>
+                          <div className="space-y-4">
+                            <div className="space-y-2">
+                              <label htmlFor="github-username" className="text-sm font-medium">GitHub Username</label>
+                              <Input
+                                id="github-username"
+                                placeholder="e.g. microsoft"
+                                value={tempGithubUsername}
+                                onChange={(e) => setTempGithubUsername(e.target.value)}
+                              />
+                            </div>
+                            <div className="space-y-2">
+                              <label htmlFor="repo-name" className="text-sm font-medium">Repository Name</label>
+                              <Input
+                                id="repo-name"
+                                placeholder="e.g. vscode"
+                                onKeyDown={(e) => {
+                                  if (e.key === 'Enter') {
+                                    selectSpecificRepository(tempGithubUsername, e.currentTarget.value)
+                                  }
+                                }}
+                              />
+                            </div>
+                            <div className="bg-muted/30 rounded-lg p-3">
+                              <p className="text-xs text-muted-foreground">
+                                Example: To add Microsoft's VS Code repository, enter "microsoft" as username and "vscode" as repository name.
+                              </p>
+                            </div>
+                            <div className="flex justify-end gap-2">
+                              <Button variant="outline" onClick={() => setIsSelectingFromGitHub(false)}>
+                                Cancel
+                              </Button>
+                              <Button 
+                                onClick={() => {
+                                  const repoName = document.getElementById('repo-name') as HTMLInputElement
+                                  selectSpecificRepository(tempGithubUsername, repoName.value)
+                                }}
+                                disabled={!tempGithubUsername.trim()}
+                              >
+                                <Plus size={16} className="mr-2" />
+                                Add Repository
+                              </Button>
+                            </div>
+                          </div>
+                        </DialogContent>
+                      </Dialog>
+                    </CardContent>
+                  </Card>
+                </div>
+              </div>
             )}
 
             {/* Loading State */}
@@ -2706,6 +2927,65 @@ Sent from your portfolio website
                     <Button size="sm" variant="ghost" onClick={() => githubUsername && fetchGitHubRepos(githubUsername)}>
                       Refresh
                     </Button>
+                    <Dialog open={isSelectingFromGitHub} onOpenChange={setIsSelectingFromGitHub}>
+                      <DialogTrigger asChild>
+                        <Button size="sm" variant="ghost">
+                          <Plus size={14} className="mr-2" />
+                          Add Repository
+                        </Button>
+                      </DialogTrigger>
+                      <DialogContent className="max-w-md">
+                        <DialogHeader>
+                          <DialogTitle>Add Specific Repository</DialogTitle>
+                          <DialogDescription>
+                            Enter the GitHub username and repository name to add a specific project to your portfolio.
+                          </DialogDescription>
+                        </DialogHeader>
+                        <div className="space-y-4">
+                          <div className="space-y-2">
+                            <label htmlFor="add-github-username" className="text-sm font-medium">GitHub Username</label>
+                            <Input
+                              id="add-github-username"
+                              placeholder="e.g. microsoft"
+                              value={tempGithubUsername}
+                              onChange={(e) => setTempGithubUsername(e.target.value)}
+                            />
+                          </div>
+                          <div className="space-y-2">
+                            <label htmlFor="add-repo-name" className="text-sm font-medium">Repository Name</label>
+                            <Input
+                              id="add-repo-name"
+                              placeholder="e.g. vscode"
+                              onKeyDown={(e) => {
+                                if (e.key === 'Enter') {
+                                  selectSpecificRepository(tempGithubUsername, e.currentTarget.value)
+                                }
+                              }}
+                            />
+                          </div>
+                          <div className="bg-muted/30 rounded-lg p-3">
+                            <p className="text-xs text-muted-foreground">
+                              Example: To add Microsoft's VS Code repository, enter "microsoft" as username and "vscode" as repository name.
+                            </p>
+                          </div>
+                          <div className="flex justify-end gap-2">
+                            <Button variant="outline" onClick={() => setIsSelectingFromGitHub(false)}>
+                              Cancel
+                            </Button>
+                            <Button 
+                              onClick={() => {
+                                const repoName = document.getElementById('add-repo-name') as HTMLInputElement
+                                selectSpecificRepository(tempGithubUsername, repoName.value)
+                              }}
+                              disabled={!tempGithubUsername.trim()}
+                            >
+                              <Plus size={16} className="mr-2" />
+                              Add Repository
+                            </Button>
+                          </div>
+                        </div>
+                      </DialogContent>
+                    </Dialog>
                     <Dialog open={isManageDialogOpen} onOpenChange={setIsManageDialogOpen}>
                       <DialogTrigger asChild>
                         <Button size="sm" variant="outline">
@@ -3063,6 +3343,53 @@ Sent from your portfolio website
                         <Bell size={14} className="mr-2" />
                         Subscribe to Newsletter
                       </Button>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+              
+              {/* PDF Upload Section */}
+              <div className="max-w-md mx-auto">
+                <Card className="border-2 border-dashed border-accent/30 hover:border-accent/50 transition-colors">
+                  <CardContent className="pt-4 pb-4">
+                    <div className="text-center space-y-3">
+                      <Upload size={24} className="mx-auto text-accent" />
+                      <div>
+                        <h4 className="font-semibold text-sm">Upload Research PDF</h4>
+                        <p className="text-xs text-muted-foreground">
+                          Add your own research papers and documents to the portfolio
+                        </p>
+                      </div>
+                      <Button 
+                        size="sm" 
+                        onClick={triggerPdfUpload}
+                        disabled={isUploadingPdf}
+                        variant="outline"
+                        className="w-full"
+                      >
+                        {isUploadingPdf ? (
+                          <>
+                            <SpinnerGap size={14} className="mr-2 animate-spin" />
+                            Uploading...
+                          </>
+                        ) : (
+                          <>
+                            <Upload size={14} className="mr-2" />
+                            Upload PDF Document
+                          </>
+                        )}
+                      </Button>
+                      {/* Hidden file input */}
+                      <input
+                        ref={pdfInputRef}
+                        type="file"
+                        accept=".pdf,application/pdf"
+                        onChange={handlePdfUpload}
+                        className="hidden"
+                      />
+                      <p className="text-xs text-muted-foreground">
+                        Supports PDF files • Max 10MB
+                      </p>
                     </div>
                   </CardContent>
                 </Card>
