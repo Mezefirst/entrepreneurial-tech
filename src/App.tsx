@@ -49,7 +49,9 @@ import {
   FileText,
   PaperPlane,
   Bell,
-  Users
+  Users,
+  PencilSimple,
+  FloppyDisk,
 } from "@phosphor-icons/react"
 
 interface GitHubRepo {
@@ -860,6 +862,36 @@ Success requires a comprehensive approach encompassing process optimization, tec
   const [newsletterSuccess, setNewsletterSuccess] = useState(false)
   const [subscribers, setSubscribers] = useKV<Array<{email: string, name: string, interests: string[], subscribedAt: string}>>("newsletter-subscribers", [])
 
+  // Profile editing state
+  interface ProfileData {
+    name: string
+    title: string
+    phone: string
+    email: string
+    alternateEmail: string
+    bio: string
+    secondaryBio: string
+    linkedinUrl: string
+    location: string
+  }
+
+  const defaultProfileData: ProfileData = {
+    name: "Mesfin Asfaw Zewge",
+    title: "Materials Science Engineer & Innovation Specialist",
+    phone: "+46736671975",
+    email: "zewge@student.chalmers.se",
+    alternateEmail: "mazefirst@gmail.com",
+    bio: "I'm a motivated and solution-driven Engineer with 12+ years of international work experience and a fresh MSc in Industrial and Materials Science from Chalmers University of Technology. I specialize in the mechanical performance of engineering materials, material characterization, phase transformations, surface technology, and additive manufacturing for sustainable solutions in greener technology applications. My passion lies in developing sustainable solutions through the integration of AI technology to drive innovation in materials science and manufacturing processes.",
+    secondaryBio: "My diverse background spans aerospace maintenance, product development, and materials engineering, with expertise in aircraft maintenance (Boeing 767 type-rated), CAD design, and lean manufacturing. I'm passionate about developing sustainable solutions through AI technology integration and committed to delivering quality-driven solutions that comply with industry standards and regulations.",
+    linkedinUrl: "https://www.linkedin.com/in/mesfinasfaw-zewge-5b8b8b123",
+    location: "Göteborg, Sweden"
+  }
+
+  const [profileData, setProfileData] = useKV<ProfileData>("profile-data", defaultProfileData)
+  const [isEditingProfile, setIsEditingProfile] = useState(false)
+  const [profileForm, setProfileForm] = useState<ProfileData>(profileData || defaultProfileData)
+  const [isSavingProfile, setIsSavingProfile] = useState(false)
+
   // Newsletter subscription functions
   const openNewsletterDialog = () => {
     setNewsletterForm({
@@ -965,7 +997,7 @@ Sent from your portfolio website
       `.trim()
 
       // Create mailto link
-      const mailtoLink = `mailto:zewge@student.chalmers.se?subject=${encodeURIComponent(contactForm.subject)}&body=${encodeURIComponent(emailBody)}`
+      const mailtoLink = `mailto:${profileData?.email || 'zewge@student.chalmers.se'}?subject=${encodeURIComponent(contactForm.subject)}&body=${encodeURIComponent(emailBody)}`
       
       // Open email client
       window.open(mailtoLink)
@@ -2011,6 +2043,54 @@ Sent from your portfolio website
     setProfilePhotoUrl(null)
   }
 
+  // Profile editing functions
+  const startEditingProfile = () => {
+    setProfileForm(profileData || defaultProfileData)
+    setIsEditingProfile(true)
+  }
+
+  const cancelEditingProfile = () => {
+    setProfileForm(profileData || defaultProfileData)
+    setIsEditingProfile(false)
+  }
+
+  const saveProfileChanges = async () => {
+    if (!profileForm.name.trim() || !profileForm.title.trim()) {
+      alert('Name and title are required fields')
+      return
+    }
+
+    setIsSavingProfile(true)
+    
+    try {
+      await new Promise(resolve => setTimeout(resolve, 500)) // Small delay for UX
+      setProfileData(profileForm)
+      setIsEditingProfile(false)
+      
+      // Optional: Show success message
+      console.log('Profile updated successfully!')
+    } catch (error) {
+      console.error('Error saving profile:', error)
+      alert('Error saving profile. Please try again.')
+    } finally {
+      setIsSavingProfile(false)
+    }
+  }
+
+  const updateProfileForm = <K extends keyof ProfileData>(field: K, value: ProfileData[K]) => {
+    setProfileForm(prev => ({
+      ...prev,
+      [field]: value
+    }))
+  }
+
+  // Update profile data when it changes
+  useEffect(() => {
+    if (profileData) {
+      setProfileForm(profileData)
+    }
+  }, [profileData])
+
   // Fetch README content from GitHub
   const fetchReadmeContent = async (repoFullName: string): Promise<string | null> => {
     try {
@@ -2291,11 +2371,11 @@ Sent from your portfolio website
                 <Avatar className="w-8 h-8 ring-2 ring-primary/20">
                   <AvatarImage 
                     src={profilePhotoUrl || profilePhoto} 
-                    alt="Mesfin Asfaw Zewge" 
+                    alt={profileData?.name || "Mesfin Asfaw Zewge"} 
                     className="object-cover"
                   />
                   <AvatarFallback className="bg-primary text-primary-foreground font-bold text-sm">
-                    MZ
+                    {(profileData?.name || "Mesfin Zewge").split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2)}
                   </AvatarFallback>
                 </Avatar>
                 {/* Quick upload button for header */}
@@ -2314,7 +2394,7 @@ Sent from your portfolio website
                   )}
                 </Button>
               </div>
-              <h1 className="font-heading font-bold text-xl">Mesfin Asfaw Zewge</h1>
+              <h1 className="font-heading font-bold text-xl">{profileData?.name || "Mesfin Asfaw Zewge"}</h1>
             </div>
             <nav className="hidden md:flex space-x-6">
               <button 
@@ -2383,10 +2463,12 @@ Sent from your portfolio website
                 <Avatar className="w-32 h-32 mx-auto ring-4 ring-primary/20 ring-offset-4 ring-offset-background">
                   <AvatarImage 
                     src={profilePhotoUrl || profilePhoto} 
-                    alt="Mesfin Asfaw Zewge - Materials Science Engineer" 
+                    alt={`${profileData?.name || "Mesfin Asfaw Zewge"} - ${profileData?.title || "Materials Science Engineer"}`} 
                     className="object-cover"
                   />
-                  <AvatarFallback className="text-2xl bg-primary text-primary-foreground">MZ</AvatarFallback>
+                  <AvatarFallback className="text-2xl bg-primary text-primary-foreground">
+                    {(profileData?.name || "Mesfin Zewge").split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2)}
+                  </AvatarFallback>
                 </Avatar>
                 
                 {/* Photo upload controls */}
@@ -2511,56 +2593,237 @@ Sent from your portfolio website
                 </div>
               )}
 
-              <div>
-                <h2 className="font-heading text-3xl font-bold mb-2">Mesfin Asfaw Zewge</h2>
-                <p className="text-muted-foreground text-lg">Materials Science Engineer & Innovation Specialist</p>
-                <div className="flex items-center justify-center gap-4 mt-4 text-sm text-muted-foreground">
-                  <div className="flex items-center gap-1">
-                    
-                    <span>+46736671975</span>
-                  </div>
-                  <div className="flex items-center gap-1">
-                    <EnvelopeSimple size={14} />
-                    <span>zewge@student.chalmers.se</span>
-                  </div>
+              <div className="text-center space-y-4">
+                <div className="flex items-center justify-center gap-2">
+                  {isEditingProfile ? (
+                    <div className="space-y-4 max-w-md mx-auto">
+                      <Input
+                        value={profileForm.name}
+                        onChange={(e) => updateProfileForm('name', e.target.value)}
+                        className="text-center text-2xl font-bold font-heading"
+                        placeholder="Full Name"
+                      />
+                      <Input
+                        value={profileForm.title}
+                        onChange={(e) => updateProfileForm('title', e.target.value)}
+                        className="text-center text-lg"
+                        placeholder="Professional Title"
+                      />
+                    </div>
+                  ) : (
+                    <>
+                      <h2 className="font-heading text-3xl font-bold mb-2">{profileData?.name || "Mesfin Asfaw Zewge"}</h2>
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        onClick={startEditingProfile}
+                        className="text-muted-foreground hover:text-primary"
+                        title="Edit profile"
+                      >
+                        <PencilSimple size={16} />
+                      </Button>
+                    </>
+                  )}
                 </div>
+                
+                {isEditingProfile ? (
+                  <Input
+                    value={profileForm.title}
+                    onChange={(e) => updateProfileForm('title', e.target.value)}
+                    className="text-center text-lg max-w-md mx-auto"
+                    placeholder="Professional Title"
+                  />
+                ) : (
+                  <p className="text-muted-foreground text-lg">{profileData?.title || "Materials Science Engineer & Innovation Specialist"}</p>
+                )}
+                
+                <div className="flex items-center justify-center gap-4 mt-4 text-sm text-muted-foreground">
+                  {isEditingProfile ? (
+                    <div className="space-y-2 max-w-md mx-auto">
+                      <div className="flex gap-2">
+                        <Input
+                          value={profileForm.phone}
+                          onChange={(e) => updateProfileForm('phone', e.target.value)}
+                          placeholder="Phone number"
+                          className="text-center text-sm"
+                        />
+                        <Input
+                          value={profileForm.email}
+                          onChange={(e) => updateProfileForm('email', e.target.value)}
+                          placeholder="Primary email"
+                          className="text-center text-sm"
+                        />
+                      </div>
+                      <Input
+                        value={profileForm.alternateEmail}
+                        onChange={(e) => updateProfileForm('alternateEmail', e.target.value)}
+                        placeholder="Secondary email (optional)"
+                        className="text-center text-sm"
+                      />
+                    </div>
+                  ) : (
+                    <>
+                      <div className="flex items-center gap-1">
+                        <span>{profileData?.phone || "+46736671975"}</span>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <EnvelopeSimple size={14} />
+                        <span>{profileData?.email || "zewge@student.chalmers.se"}</span>
+                      </div>
+                      {profileData?.alternateEmail && (
+                        <div className="flex items-center gap-1">
+                          <EnvelopeSimple size={14} />
+                          <span>{profileData.alternateEmail}</span>
+                        </div>
+                      )}
+                    </>
+                  )}
+                </div>
+                
+                {/* Edit controls */}
+                {isEditingProfile && (
+                  <div className="flex gap-2 justify-center pt-4">
+                    <Button
+                      onClick={saveProfileChanges}
+                      disabled={isSavingProfile}
+                      className="bg-primary hover:bg-primary/90"
+                    >
+                      {isSavingProfile ? (
+                        <>
+                          <SpinnerGap size={16} className="mr-2 animate-spin" />
+                          Saving...
+                        </>
+                      ) : (
+                        <>
+                          <FloppyDisk size={16} className="mr-2" />
+                          Save Changes
+                        </>
+                      )}
+                    </Button>
+                    <Button
+                      variant="outline"
+                      onClick={cancelEditingProfile}
+                      disabled={isSavingProfile}
+                    >
+                      Cancel
+                    </Button>
+                  </div>
+                )}
               </div>
             </div>
+
+            {/* Profile editing hint when not editing */}
+            {!isEditingProfile && (
+              <div className="max-w-md mx-auto">
+                <Card className="border-2 border-dashed border-primary/20 hover:border-primary/40 transition-colors">
+                  <CardContent className="pt-4 pb-4">
+                    <div className="text-center space-y-3">
+                      <PencilSimple size={20} className="mx-auto text-primary/60" />
+                      <div>
+                        <p className="text-sm font-medium">Customize Your Profile</p>
+                        <p className="text-xs text-muted-foreground">
+                          Edit your name, title, bio, and contact information to personalize your portfolio
+                        </p>
+                      </div>
+                      <Button 
+                        size="sm" 
+                        variant="outline" 
+                        onClick={startEditingProfile}
+                        className="text-primary border-primary/30 hover:bg-primary/10"
+                      >
+                        <PencilSimple size={14} className="mr-2" />
+                        Edit Profile
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+            )}
 
             <div className="max-w-3xl mx-auto space-y-6">
               <Card>
                 <CardHeader>
-                  <CardTitle className="font-heading">About Me</CardTitle>
+                  <div className="flex items-center justify-between">
+                    <CardTitle className="font-heading">About Me</CardTitle>
+                    {!isEditingProfile && (
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        onClick={startEditingProfile}
+                        className="text-muted-foreground hover:text-primary"
+                        title="Edit bio"
+                      >
+                        <PencilSimple size={16} />
+                      </Button>
+                    )}
+                  </div>
                 </CardHeader>
                 <CardContent className="prose prose-lg max-w-none">
-                  <p className="text-muted-foreground leading-relaxed">
-                    I'm a motivated and solution-driven Engineer with 12+ years of international work experience 
-                    and a fresh MSc in Industrial and Materials Science from Chalmers University of Technology. 
-                    I specialize in the mechanical performance of engineering materials, material characterization, 
-                    phase transformations, surface technology, and additive manufacturing for sustainable solutions 
-                    in greener technology applications. My passion lies in developing sustainable solutions through 
-                    the integration of AI technology to drive innovation in materials science and manufacturing processes.
-                  </p>
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 my-6">
-                    <div className="text-center p-4 bg-muted/50 rounded-lg">
-                      <h4 className="font-semibold text-primary mb-2">12+ Years</h4>
-                      <p className="text-sm text-muted-foreground">International Experience</p>
+                  {isEditingProfile ? (
+                    <div className="space-y-4">
+                      <div className="space-y-2">
+                        <label className="text-sm font-medium">Primary Bio</label>
+                        <Textarea
+                          value={profileForm.bio}
+                          onChange={(e) => updateProfileForm('bio', e.target.value)}
+                          placeholder="Write your primary bio..."
+                          rows={6}
+                          className="min-h-[150px]"
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <label className="text-sm font-medium">Secondary Bio (Optional)</label>
+                        <Textarea
+                          value={profileForm.secondaryBio}
+                          onChange={(e) => updateProfileForm('secondaryBio', e.target.value)}
+                          placeholder="Additional background information..."
+                          rows={4}
+                          className="min-h-[100px]"
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <label className="text-sm font-medium">LinkedIn URL</label>
+                        <Input
+                          value={profileForm.linkedinUrl}
+                          onChange={(e) => updateProfileForm('linkedinUrl', e.target.value)}
+                          placeholder="https://www.linkedin.com/in/your-profile"
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <label className="text-sm font-medium">Location</label>
+                        <Input
+                          value={profileForm.location}
+                          onChange={(e) => updateProfileForm('location', e.target.value)}
+                          placeholder="City, Country"
+                        />
+                      </div>
                     </div>
-                    <div className="text-center p-4 bg-muted/50 rounded-lg">
-                      <h4 className="font-semibold text-primary mb-2">Open-minded</h4>
-                      <p className="text-sm text-muted-foreground">Collaborative Team Player</p>
-                    </div>
-                    <div className="text-center p-4 bg-muted/50 rounded-lg">
-                      <h4 className="font-semibold text-primary mb-2">Passionate</h4>
-                      <p className="text-sm text-muted-foreground">AI-Integrated Sustainable Solutions</p>
-                    </div>
-                  </div>
-                  <p className="text-muted-foreground leading-relaxed">
-                    My diverse background spans aerospace maintenance, product development, and materials engineering, 
-                    with expertise in aircraft maintenance (Boeing 767 type-rated), CAD design, and lean manufacturing. 
-                    I'm passionate about developing sustainable solutions through AI technology integration and committed 
-                    to delivering quality-driven solutions that comply with industry standards and regulations.
-                  </p>
+                  ) : (
+                    <>
+                      <p className="text-muted-foreground leading-relaxed">
+                        {profileData?.bio || "I'm a motivated and solution-driven Engineer with 12+ years of international work experience and a fresh MSc in Industrial and Materials Science from Chalmers University of Technology. I specialize in the mechanical performance of engineering materials, material characterization, phase transformations, surface technology, and additive manufacturing for sustainable solutions in greener technology applications. My passion lies in developing sustainable solutions through the integration of AI technology to drive innovation in materials science and manufacturing processes."}
+                      </p>
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 my-6">
+                        <div className="text-center p-4 bg-muted/50 rounded-lg">
+                          <h4 className="font-semibold text-primary mb-2">12+ Years</h4>
+                          <p className="text-sm text-muted-foreground">International Experience</p>
+                        </div>
+                        <div className="text-center p-4 bg-muted/50 rounded-lg">
+                          <h4 className="font-semibold text-primary mb-2">Open-minded</h4>
+                          <p className="text-sm text-muted-foreground">Collaborative Team Player</p>
+                        </div>
+                        <div className="text-center p-4 bg-muted/50 rounded-lg">
+                          <h4 className="font-semibold text-primary mb-2">Passionate</h4>
+                          <p className="text-sm text-muted-foreground">AI-Integrated Sustainable Solutions</p>
+                        </div>
+                      </div>
+                      {profileData?.secondaryBio && (
+                        <p className="text-muted-foreground leading-relaxed">
+                          {profileData.secondaryBio}
+                        </p>
+                      )}
+                    </>
+                  )}
                 </CardContent>
               </Card>
 
@@ -3761,23 +4024,32 @@ Sent from your portfolio website
 
             <div className="max-w-2xl mx-auto space-y-6">
               <div className="grid md:grid-cols-3 gap-4">
-                <Card className="text-center hover-lift transition-all duration-200 cursor-pointer" onClick={() => window.open('mailto:zewge@student.chalmers.se', '_blank')}>
+                <Card className="text-center hover-lift transition-all duration-200 cursor-pointer" onClick={() => window.open(`mailto:${profileData?.email || 'zewge@student.chalmers.se'}`, '_blank')}>
                   <CardContent className="pt-6">
                     <EnvelopeSimple size={32} className="mx-auto mb-3 text-primary" />
                     <h3 className="font-semibold mb-2">Email</h3>
-                    <p className="text-muted-foreground text-sm hover:text-primary transition-colors">zewge@student.chalmers.se</p>
-                    <p className="text-muted-foreground text-xs hover:text-primary transition-colors">mazefirst@gmail.com</p>
+                    <p className="text-muted-foreground text-sm hover:text-primary transition-colors">
+                      {profileData?.email || 'zewge@student.chalmers.se'}
+                    </p>
+                    {profileData?.alternateEmail && (
+                      <p className="text-muted-foreground text-xs hover:text-primary transition-colors">
+                        {profileData.alternateEmail}
+                      </p>
+                    )}
                     <Button size="sm" variant="ghost" className="mt-2 text-xs">
                       Send Email
                     </Button>
                   </CardContent>
                 </Card>
 
-                <Card className="text-center hover-lift transition-all duration-200 cursor-pointer" onClick={() => window.open('https://www.linkedin.com/in/mesfinasfaw-zewge-5b8b8b123', '_blank')}>
+                <Card className="text-center hover-lift transition-all duration-200 cursor-pointer" onClick={() => window.open(profileData?.linkedinUrl || 'https://www.linkedin.com/in/mesfinasfaw-zewge-5b8b8b123', '_blank')}>
                   <CardContent className="pt-6">
                     <LinkedinLogo size={32} className="mx-auto mb-3 text-primary" />
                     <h3 className="font-semibold mb-2">LinkedIn</h3>
                     <p className="text-muted-foreground text-sm hover:text-primary transition-colors">Connect professionally</p>
+                    {profileData?.location && (
+                      <p className="text-muted-foreground text-xs">{profileData.location}</p>
+                    )}
                     <Button size="sm" variant="ghost" className="mt-2 text-xs">
                       <LinkedinLogo size={14} className="mr-1" />
                       View Profile
@@ -3917,7 +4189,7 @@ Sent from your portfolio website
               </span>
             </div>
             <p className="text-muted-foreground">
-              &copy; 2024 Mesfinasfaw Zewge - Materials Science Engineer. All rights reserved.
+              &copy; 2024 {profileData?.name || "Mesfinasfaw Zewge"} - {profileData?.title || "Materials Science Engineer"}. All rights reserved.
             </p>
           </div>
         </div>
