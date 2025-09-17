@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react"
+import { useState, useEffect, useMemo } from "react"
 import { useKV } from "@github/spark/hooks"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Separator } from "@/components/ui/separator"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { 
   GithubLogo, 
   ArrowUpRight, 
@@ -19,7 +20,10 @@ import {
   User,
   Star,
   GitFork,
-  SpinnerGap
+  SpinnerGap,
+  FunnelSimple,
+  SortAscending,
+  CalendarBlank
 } from "@phosphor-icons/react"
 
 interface GitHubRepo {
@@ -47,7 +51,7 @@ interface Project {
   tags: string[]
   stars?: number
   forks?: number
-  updatedAt?: string
+  updatedAt?: string // ISO date string from GitHub API
 }
 
 interface Article {
@@ -69,6 +73,11 @@ function App() {
   const [githubUsername, setGithubUsername] = useKV("github-username", "")
   const [isLoadingRepos, setIsLoadingRepos] = useState(false)
   const [repoError, setRepoError] = useState<string | null>(null)
+  
+  // New state for filtering and sorting projects
+  const [projectSearchTerm, setProjectSearchTerm] = useState("")
+  const [selectedLanguage, setSelectedLanguage] = useState("all")
+  const [sortBy, setSortBy] = useState<"name" | "stars" | "forks" | "updated">("updated")
 
   // Fetch GitHub repositories
   const fetchGitHubRepos = async (username: string) => {
@@ -99,7 +108,7 @@ function App() {
           tags: repo.topics.slice(0, 5), // Limit to 5 topics
           stars: repo.stargazers_count,
           forks: repo.forks_count,
-          updatedAt: new Date(repo.updated_at).toLocaleDateString()
+          updatedAt: repo.updated_at
         }))
 
       setProjects(filteredRepos)
@@ -124,6 +133,49 @@ function App() {
     const username = formData.get('username') as string
     setGithubUsername(username)
   }
+
+  // Filter and sort projects
+  const filteredAndSortedProjects = useMemo(() => {
+    let filtered = (projects || []).filter(project => {
+      const matchesSearch = !projectSearchTerm || 
+        project.title.toLowerCase().includes(projectSearchTerm.toLowerCase()) ||
+        project.description.toLowerCase().includes(projectSearchTerm.toLowerCase()) ||
+        project.tags.some(tag => tag.toLowerCase().includes(projectSearchTerm.toLowerCase()))
+      
+      const matchesLanguage = selectedLanguage === "all" || 
+        project.techStack.some(tech => tech.toLowerCase() === selectedLanguage.toLowerCase())
+      
+      return matchesSearch && matchesLanguage
+    })
+
+    // Sort the filtered results
+    filtered.sort((a, b) => {
+      switch (sortBy) {
+        case "name":
+          return a.title.localeCompare(b.title)
+        case "stars":
+          return (b.stars || 0) - (a.stars || 0)
+        case "forks":
+          return (b.forks || 0) - (a.forks || 0)
+        case "updated":
+          if (!a.updatedAt || !b.updatedAt) return 0
+          return new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()
+        default:
+          return 0
+      }
+    })
+
+    return filtered
+  }, [projects, projectSearchTerm, selectedLanguage, sortBy])
+
+  // Get unique languages from projects for filter dropdown
+  const availableLanguages = useMemo(() => {
+    const languages = new Set<string>()
+    ;(projects || []).forEach(project => {
+      project.techStack.forEach(tech => languages.add(tech))
+    })
+    return Array.from(languages).sort()
+  }, [projects])
 
   const filteredArticles = (articles || []).filter(article => {
     const matchesSearch = article.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -371,78 +423,184 @@ function App() {
                   </div>
                 </div>
 
-                <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {(projects || []).map((project) => (
-                    <Card key={project.id} className="hover-lift transition-all duration-200 hover:shadow-lg">
-                      <CardHeader>
-                        <div className="flex items-start justify-between">
-                          <CardTitle className="font-heading">{project.title}</CardTitle>
-                          <div className="flex gap-2">
-                            <Button size="sm" variant="ghost" asChild>
-                              <a href={project.githubUrl} target="_blank" rel="noopener noreferrer">
-                                <GithubLogo size={16} />
-                              </a>
+                {/* Filtering and Sorting Controls */}
+                <div className="space-y-4">
+                  <div className="flex flex-col sm:flex-row gap-4 max-w-4xl mx-auto">
+                    {/* Search Input */}
+                    <div className="relative flex-1">
+                      <MagnifyingGlass className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground" size={16} />
+                      <Input
+                        placeholder="Search projects..."
+                        value={projectSearchTerm}
+                        onChange={(e) => setProjectSearchTerm(e.target.value)}
+                        className="pl-10"
+                      />
+                    </div>
+                    
+                    {/* Language Filter */}
+                    <div className="flex items-center gap-2">
+                      <FunnelSimple size={16} className="text-muted-foreground" />
+                      <Select value={selectedLanguage} onValueChange={setSelectedLanguage}>
+                        <SelectTrigger className="w-40">
+                          <SelectValue placeholder="Language" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="all">All Languages</SelectItem>
+                          {availableLanguages.map((language) => (
+                            <SelectItem key={language} value={language}>
+                              {language}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    {/* Sort Options */}
+                    <div className="flex items-center gap-2">
+                      <SortAscending size={16} className="text-muted-foreground" />
+                      <Select value={sortBy} onValueChange={(value: "name" | "stars" | "forks" | "updated") => setSortBy(value)}>
+                        <SelectTrigger className="w-36">
+                          <SelectValue placeholder="Sort by" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="updated">
+                            <div className="flex items-center gap-2">
+                              <CalendarBlank size={14} />
+                              Recently Updated
+                            </div>
+                          </SelectItem>
+                          <SelectItem value="stars">
+                            <div className="flex items-center gap-2">
+                              <Star size={14} />
+                              Most Stars
+                            </div>
+                          </SelectItem>
+                          <SelectItem value="forks">
+                            <div className="flex items-center gap-2">
+                              <GitFork size={14} />
+                              Most Forks
+                            </div>
+                          </SelectItem>
+                          <SelectItem value="name">Name A-Z</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+
+                  {/* Results Summary */}
+                  <div className="text-center text-sm text-muted-foreground">
+                    Showing {filteredAndSortedProjects.length} of {(projects || []).length} repositories
+                    {projectSearchTerm && ` matching "${projectSearchTerm}"`}
+                    {selectedLanguage !== "all" && ` in ${selectedLanguage}`}
+                  </div>
+                </div>
+
+                {/* No Results State */}
+                {filteredAndSortedProjects.length === 0 && (projects || []).length > 0 && (
+                  <Card className="text-center py-12">
+                    <CardContent>
+                      <div className="space-y-4">
+                        <MagnifyingGlass size={48} className="mx-auto text-muted-foreground" />
+                        <div>
+                          <h3 className="font-semibold text-lg mb-2">No Projects Found</h3>
+                          <p className="text-muted-foreground mb-4">
+                            No repositories match your current filters.
+                          </p>
+                          <div className="flex gap-2 justify-center">
+                            <Button onClick={() => {
+                              setProjectSearchTerm("")
+                              setSelectedLanguage("all")
+                              setSortBy("updated")
+                            }} variant="outline">
+                              Clear Filters
                             </Button>
-                            {project.demoUrl && (
+                          </div>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                )}
+
+                {/* Projects Grid */}
+                {filteredAndSortedProjects.length > 0 && (
+                  <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {filteredAndSortedProjects.map((project) => (
+                      <Card key={project.id} className="hover-lift transition-all duration-200 hover:shadow-lg">
+                        <CardHeader>
+                          <div className="flex items-start justify-between">
+                            <CardTitle className="font-heading">{project.title}</CardTitle>
+                            <div className="flex gap-2">
                               <Button size="sm" variant="ghost" asChild>
-                                <a href={project.demoUrl} target="_blank" rel="noopener noreferrer">
-                                  <ArrowUpRight size={16} />
+                                <a href={project.githubUrl} target="_blank" rel="noopener noreferrer">
+                                  <GithubLogo size={16} />
                                 </a>
                               </Button>
-                            )}
+                              {project.demoUrl && (
+                                <Button size="sm" variant="ghost" asChild>
+                                  <a href={project.demoUrl} target="_blank" rel="noopener noreferrer">
+                                    <ArrowUpRight size={16} />
+                                  </a>
+                                </Button>
+                              )}
+                            </div>
                           </div>
-                        </div>
-                        <CardDescription>{project.description}</CardDescription>
-                      </CardHeader>
-                      <CardContent>
-                        <div className="space-y-4">
-                          {/* Tech Stack */}
-                          {project.techStack.length > 0 && (
-                            <div className="flex flex-wrap gap-2">
-                              {project.techStack.map((tech) => (
-                                <Badge key={tech} variant="secondary" className="text-xs">
-                                  {tech}
-                                </Badge>
-                              ))}
-                            </div>
-                          )}
-                          
-                          {/* Tags/Topics */}
-                          {project.tags.length > 0 && (
-                            <div className="flex flex-wrap gap-2">
-                              {project.tags.map((tag) => (
-                                <Badge key={tag} variant="outline" className="text-xs">
-                                  {tag}
-                                </Badge>
-                              ))}
-                            </div>
-                          )}
+                          <CardDescription>{project.description}</CardDescription>
+                        </CardHeader>
+                        <CardContent>
+                          <div className="space-y-4">
+                            {/* Tech Stack */}
+                            {project.techStack.length > 0 && (
+                              <div className="flex flex-wrap gap-2">
+                                {project.techStack.map((tech) => (
+                                  <Badge 
+                                    key={tech} 
+                                    variant={selectedLanguage === tech ? "default" : "secondary"} 
+                                    className="text-xs cursor-pointer hover:bg-accent"
+                                    onClick={() => setSelectedLanguage(tech)}
+                                  >
+                                    {tech}
+                                  </Badge>
+                                ))}
+                              </div>
+                            )}
+                            
+                            {/* Tags/Topics */}
+                            {project.tags.length > 0 && (
+                              <div className="flex flex-wrap gap-2">
+                                {project.tags.map((tag) => (
+                                  <Badge key={tag} variant="outline" className="text-xs">
+                                    {tag}
+                                  </Badge>
+                                ))}
+                              </div>
+                            )}
 
-                          {/* GitHub Stats */}
-                          <div className="flex items-center justify-between text-sm text-muted-foreground">
-                            <div className="flex items-center gap-4">
-                              {typeof project.stars === 'number' && (
-                                <div className="flex items-center gap-1">
-                                  <Star size={14} />
-                                  <span>{project.stars}</span>
-                                </div>
-                              )}
-                              {typeof project.forks === 'number' && (
-                                <div className="flex items-center gap-1">
-                                  <GitFork size={14} />
-                                  <span>{project.forks}</span>
-                                </div>
+                            {/* GitHub Stats */}
+                            <div className="flex items-center justify-between text-sm text-muted-foreground">
+                              <div className="flex items-center gap-4">
+                                {typeof project.stars === 'number' && (
+                                  <div className="flex items-center gap-1">
+                                    <Star size={14} />
+                                    <span>{project.stars}</span>
+                                  </div>
+                                )}
+                                {typeof project.forks === 'number' && (
+                                  <div className="flex items-center gap-1">
+                                    <GitFork size={14} />
+                                    <span>{project.forks}</span>
+                                  </div>
+                                )}
+                              </div>
+                              {project.updatedAt && (
+                                <span className="text-xs">Updated {new Date(project.updatedAt).toLocaleDateString()}</span>
                               )}
                             </div>
-                            {project.updatedAt && (
-                              <span className="text-xs">Updated {project.updatedAt}</span>
-                            )}
                           </div>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  ))}
-                </div>
+                        </CardContent>
+                      </Card>
+                    ))}
+                  </div>
+                )}
               </>
             )}
           </TabsContent>
