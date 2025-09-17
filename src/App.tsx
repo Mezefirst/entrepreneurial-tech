@@ -1897,7 +1897,7 @@ Sent from your portfolio website
 
     // Validate file type
     if (!file.type.startsWith('image/')) {
-      alert('Please select an image file')
+      alert('Please select an image file (JPG, PNG, WebP)')
       return
     }
 
@@ -1916,17 +1916,23 @@ Sent from your portfolio website
         const dataUrl = e.target?.result as string
         setProfilePhotoUrl(dataUrl)
         setIsUploadingPhoto(false)
+        
+        // Show success message
+        console.log('Profile photo uploaded successfully!')
       }
       reader.onerror = () => {
-        alert('Error reading file')
+        alert('Error reading file. Please try again.')
         setIsUploadingPhoto(false)
       }
       reader.readAsDataURL(file)
     } catch (error) {
       console.error('Error uploading photo:', error)
-      alert('Error uploading photo')
+      alert('Error uploading photo. Please try again.')
       setIsUploadingPhoto(false)
     }
+    
+    // Clear the input value so the same file can be selected again
+    event.target.value = ''
   }
 
   const triggerPhotoUpload = () => {
@@ -2262,8 +2268,32 @@ Sent from your portfolio website
         <div className="container mx-auto px-6 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-3">
-              <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center shadow-sm">
-                <span className="text-primary-foreground font-bold text-sm">MZ</span>
+              <div className="relative">
+                <Avatar className="w-8 h-8 ring-2 ring-primary/20">
+                  <AvatarImage 
+                    src={profilePhotoUrl || profilePhoto} 
+                    alt="Mesfin Asfaw Zewge" 
+                    className="object-cover"
+                  />
+                  <AvatarFallback className="bg-primary text-primary-foreground font-bold text-sm">
+                    MZ
+                  </AvatarFallback>
+                </Avatar>
+                {/* Quick upload button for header */}
+                <Button
+                  size="sm"
+                  variant="secondary"
+                  className="absolute -bottom-1 -right-1 h-4 w-4 rounded-full p-0 shadow-md opacity-80 hover:opacity-100"
+                  onClick={triggerPhotoUpload}
+                  disabled={isUploadingPhoto}
+                  title="Upload profile photo"
+                >
+                  {isUploadingPhoto ? (
+                    <SpinnerGap size={8} className="animate-spin" />
+                  ) : (
+                    <Camera size={8} />
+                  )}
+                </Button>
               </div>
               <h1 className="font-heading font-bold text-xl">Mesfin Asfaw Zewge</h1>
             </div>
@@ -2345,9 +2375,10 @@ Sent from your portfolio website
                   <Button
                     size="sm"
                     variant="secondary"
-                    className="h-8 w-8 rounded-full p-0 shadow-lg"
+                    className="h-8 w-8 rounded-full p-0 shadow-lg hover:shadow-xl transition-all"
                     onClick={triggerPhotoUpload}
                     disabled={isUploadingPhoto}
+                    title={profilePhotoUrl ? "Change photo" : "Upload photo"}
                   >
                     {isUploadingPhoto ? (
                       <SpinnerGap size={16} className="animate-spin" />
@@ -2359,11 +2390,11 @@ Sent from your portfolio website
                     <Button
                       size="sm"
                       variant="destructive"
-                      className="h-8 w-8 rounded-full p-0 shadow-lg text-xs"
+                      className="h-8 w-8 rounded-full p-0 shadow-lg hover:shadow-xl transition-all"
                       onClick={removePhoto}
                       title="Remove photo"
                     >
-                      ×
+                      <Trash size={12} />
                     </Button>
                   )}
                 </div>
@@ -2381,16 +2412,80 @@ Sent from your portfolio website
               {/* Upload instructions */}
               {!profilePhotoUrl && (
                 <div className="mx-auto max-w-md">
-                  <Card className="border-dashed border-2 hover:border-primary/50 transition-colors">
+                  <Card className="border-dashed border-2 hover:border-primary/50 transition-colors cursor-pointer" onClick={triggerPhotoUpload}>
                     <CardContent className="pt-6 pb-4">
+                      <div className="text-center space-y-3">
+                        <div className="relative">
+                          <Upload size={48} className="mx-auto text-muted-foreground" />
+                          <div className="absolute inset-0 bg-gradient-to-r from-primary/20 to-accent/20 rounded-full blur-xl opacity-30" />
+                        </div>
+                        <div>
+                          <h3 className="font-semibold text-lg mb-2">Upload Your Professional Photo</h3>
+                          <p className="text-sm text-muted-foreground mb-3">
+                            Personalize your portfolio with a professional headshot
+                          </p>
+                          <div className="flex flex-col gap-2">
+                            <Button 
+                              onClick={triggerPhotoUpload}
+                              disabled={isUploadingPhoto}
+                              className="w-full bg-gradient-to-r from-primary to-secondary hover:from-primary/90 hover:to-secondary/90"
+                            >
+                              {isUploadingPhoto ? (
+                                <>
+                                  <SpinnerGap size={16} className="mr-2 animate-spin" />
+                                  Uploading...
+                                </>
+                              ) : (
+                                <>
+                                  <Camera size={16} className="mr-2" />
+                                  Choose Professional Photo
+                                </>
+                              )}
+                            </Button>
+                            <p className="text-xs text-muted-foreground">
+                              Supports JPG, PNG, WebP • Max 5MB • Square format recommended
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </div>
+              )}
+
+              {/* Photo uploaded confirmation */}
+              {profilePhotoUrl && (
+                <div className="mx-auto max-w-md">
+                  <Card className="border-2 border-green-200 bg-green-50/50">
+                    <CardContent className="pt-4 pb-4">
                       <div className="text-center space-y-2">
-                        <Upload size={32} className="mx-auto text-muted-foreground" />
-                        <p className="text-sm text-muted-foreground">
-                          Click the camera icon to upload your professional photo
+                        <div className="flex items-center justify-center gap-2">
+                          <Check size={20} className="text-green-600" />
+                          <span className="font-medium text-green-800">Photo uploaded successfully!</span>
+                        </div>
+                        <p className="text-xs text-green-700">
+                          Your professional photo is now displayed across your portfolio
                         </p>
-                        <p className="text-xs text-muted-foreground">
-                          Supports JPG, PNG, WebP • Max 5MB
-                        </p>
+                        <div className="flex gap-2 justify-center">
+                          <Button 
+                            size="sm" 
+                            variant="outline" 
+                            onClick={triggerPhotoUpload}
+                            className="text-green-700 border-green-300 hover:bg-green-100"
+                          >
+                            <Camera size={14} className="mr-1" />
+                            Change Photo
+                          </Button>
+                          <Button 
+                            size="sm" 
+                            variant="ghost" 
+                            onClick={removePhoto}
+                            className="text-red-600 hover:bg-red-50"
+                          >
+                            <Trash size={14} className="mr-1" />
+                            Remove
+                          </Button>
+                        </div>
                       </div>
                     </CardContent>
                   </Card>
