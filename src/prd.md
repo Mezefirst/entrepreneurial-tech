@@ -7,8 +7,10 @@
 **Success Indicators**: 
 - Seamless GitHub API integration automatically displays latest repositories
 - Intuitive filtering and sorting of projects by language, popularity, and recency
+- Interactive commenting system encourages visitor engagement and feedback
 - Professional presentation suitable for academic and business contexts
 - Clean, readable research article layout with proper categorization
+- Persistent user interactions and customizable profile elements
 
 **Experience Qualities**: Professional, Academic, Innovative
 
@@ -43,10 +45,15 @@
 - **Purpose**: Allows visitors to quickly find relevant projects matching their interests or needs
 - **Success Criteria**: Responsive filtering, clear result counts, intuitive UI controls
 
+### Interactive Commenting System
+- **Functionality**: Full-featured commenting system for both projects and research articles with nested replies, likes, and user authentication
+- **Purpose**: Enables meaningful engagement between visitors and content, fostering academic and professional discussions
+- **Success Criteria**: Threaded conversations, persistent comments, user-friendly interface, real-time updates
+
 ### Professional About Section
-- **Functionality**: Comprehensive background including education, experience, and expertise areas
+- **Functionality**: Comprehensive background including education, experience, and expertise areas with photo upload capability
 - **Purpose**: Establishes credibility and expertise for both technical and academic audiences
-- **Success Criteria**: Clear hierarchy of information, professional presentation
+- **Success Criteria**: Clear hierarchy of information, professional presentation, customizable profile
 
 ### Research Publication Hub
 - **Functionality**: Categorized research articles with search and filtering capabilities

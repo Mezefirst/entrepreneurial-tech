@@ -10,6 +10,7 @@ import { Separator } from "@/components/ui/separator"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import { Checkbox } from "@/components/ui/checkbox"
+import { Textarea } from "@/components/ui/textarea"
 import profilePhoto from "@/assets/images/profile-photo.svg"
 import { 
   GithubLogo, 
@@ -31,7 +32,11 @@ import {
   Upload,
   Plus,
   Trash,
-  Gear
+  Gear,
+  ChatCircle,
+  Heart,
+  ArrowBendUpLeft,
+  PaperPlaneTilt
 } from "@phosphor-icons/react"
 
 interface GitHubRepo {
@@ -71,6 +76,17 @@ interface Article {
   publishDate: string
   readTime: string
   pdfUrl?: string
+}
+
+interface Comment {
+  id: string
+  author: string
+  authorAvatar?: string
+  content: string
+  timestamp: string
+  parentId?: string // For replies
+  likes: number
+  replies?: Comment[]
 }
 
 function App() {
@@ -145,6 +161,296 @@ function App() {
   // Repository management state
   const [isManageDialogOpen, setIsManageDialogOpen] = useState(false)
   const [selectedRepoIds, setSelectedRepoIds] = useState<Set<string>>(new Set())
+
+  // Comments state
+  const [comments, setComments] = useKV<Record<string, Comment[]>>("comments", {
+    "article-1": [
+      {
+        id: "sample-comment-1",
+        author: "Dr. Sarah Chen",
+        content: "Excellent research on sustainable fasteners! The methodology for testing creep behavior is particularly thorough. Have you considered testing under varying humidity conditions as well?",
+        timestamp: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
+        likes: 3,
+        replies: [
+          {
+            id: "sample-reply-1",
+            author: "Materials Researcher",
+            content: "Great point about humidity testing. Environmental factors definitely play a crucial role in long-term performance.",
+            timestamp: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(),
+            likes: 1,
+            replies: []
+          }
+        ]
+      }
+    ],
+    "article-2": [
+      {
+        id: "sample-comment-2",
+        author: "Innovation Specialist",
+        content: "The frugal innovation approach is brilliant for developing countries. This could significantly impact accessibility to prosthetic devices. Are you planning to pilot this design?",
+        timestamp: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(),
+        likes: 5,
+        replies: []
+      }
+    ]
+  })
+  const [newComment, setNewComment] = useState("")
+  const [replyTo, setReplyTo] = useState<string | null>(null)
+  const [activeCommentsDialog, setActiveCommentsDialog] = useState<string | null>(null)
+  const [userInfo, setUserInfo] = useState<any>(null)
+
+  // Get user info on mount
+  useEffect(() => {
+    const getUserInfo = async () => {
+      try {
+        const user = await (window as any).spark.user()
+        setUserInfo(user)
+      } catch (error) {
+        // User info not available, will use guest mode
+        console.log('User info not available')
+      }
+    }
+    getUserInfo()
+  }, [])
+
+  // Comment management functions
+  const addComment = (itemId: string, content: string, parentId?: string) => {
+    if (!content.trim()) return
+
+    const newCommentObj: Comment = {
+      id: `comment-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+      author: userInfo?.login || 'Guest User',
+      authorAvatar: userInfo?.avatarUrl,
+      content: content.trim(),
+      timestamp: new Date().toISOString(),
+      parentId,
+      likes: 0,
+      replies: []
+    }
+
+    setComments(currentComments => {
+      const safeComments = currentComments || {}
+      const itemComments = safeComments[itemId] || []
+      
+      if (parentId) {
+        // This is a reply
+        const updatedComments = itemComments.map(comment => {
+          if (comment.id === parentId) {
+            return {
+              ...comment,
+              replies: [...(comment.replies || []), newCommentObj]
+            }
+          }
+          return comment
+        })
+        return { ...safeComments, [itemId]: updatedComments }
+      } else {
+        // This is a top-level comment
+        return { ...safeComments, [itemId]: [...itemComments, newCommentObj] }
+      }
+    })
+
+    setNewComment("")
+    setReplyTo(null)
+  }
+
+  const likeComment = (itemId: string, commentId: string, isReply = false, parentId?: string) => {
+    setComments(currentComments => {
+      const safeComments = currentComments || {}
+      const itemComments = safeComments[itemId] || []
+      
+      if (isReply && parentId) {
+        const updatedComments = itemComments.map(comment => {
+          if (comment.id === parentId) {
+            return {
+              ...comment,
+              replies: (comment.replies || []).map(reply => 
+                reply.id === commentId 
+                  ? { ...reply, likes: reply.likes + 1 }
+                  : reply
+              )
+            }
+          }
+          return comment
+        })
+        return { ...safeComments, [itemId]: updatedComments }
+      } else {
+        const updatedComments = itemComments.map(comment => 
+          comment.id === commentId 
+            ? { ...comment, likes: comment.likes + 1 }
+            : comment
+        )
+        return { ...safeComments, [itemId]: updatedComments }
+      }
+    })
+  }
+
+  const getCommentCount = (itemId: string) => {
+    const safeComments = comments || {}
+    const itemComments = safeComments[itemId] || []
+    return itemComments.reduce((total, comment) => {
+      return total + 1 + (comment.replies?.length || 0)
+    }, 0)
+  }
+
+  // Comments component
+  const CommentsSection = ({ itemId, itemTitle }: { itemId: string; itemTitle: string }) => {
+    const itemComments = (comments || {})[itemId] || []
+    
+    const formatTimeAgo = (timestamp: string) => {
+      const now = new Date()
+      const commentTime = new Date(timestamp)
+      const diffInHours = Math.floor((now.getTime() - commentTime.getTime()) / (1000 * 60 * 60))
+      
+      if (diffInHours < 1) return 'Just now'
+      if (diffInHours < 24) return `${diffInHours}h ago`
+      if (diffInHours < 24 * 7) return `${Math.floor(diffInHours / 24)}d ago`
+      return commentTime.toLocaleDateString()
+    }
+
+    const CommentItem = ({ comment, isReply = false }: { comment: Comment; isReply?: boolean }) => (
+      <div className={`space-y-3 ${isReply ? 'ml-8 border-l-2 border-muted pl-4' : ''}`}>
+        <div className="flex items-start space-x-3">
+          <Avatar className="w-8 h-8">
+            <AvatarImage src={comment.authorAvatar} alt={comment.author} />
+            <AvatarFallback className="text-xs">
+              {comment.author.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2)}
+            </AvatarFallback>
+          </Avatar>
+          <div className="flex-1 space-y-2">
+            <div className="flex items-center gap-2 text-sm">
+              <span className="font-semibold">{comment.author}</span>
+              <span className="text-muted-foreground">{formatTimeAgo(comment.timestamp)}</span>
+            </div>
+            <p className="text-sm leading-relaxed">{comment.content}</p>
+            <div className="flex items-center gap-4 text-xs">
+              <Button
+                size="sm"
+                variant="ghost"
+                className="h-6 px-2 text-muted-foreground hover:text-foreground"
+                onClick={() => likeComment(itemId, comment.id, isReply, comment.parentId)}
+              >
+                <Heart size={12} className="mr-1" />
+                {comment.likes > 0 && comment.likes}
+              </Button>
+              {!isReply && (
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  className="h-6 px-2 text-muted-foreground hover:text-foreground"
+                  onClick={() => setReplyTo(comment.id)}
+                >
+                  <ArrowBendUpLeft size={12} className="mr-1" />
+                  Reply
+                </Button>
+              )}
+            </div>
+            
+            {/* Reply form */}
+            {replyTo === comment.id && (
+              <div className="space-y-2 mt-3">
+                <Textarea
+                  placeholder={`Reply to ${comment.author}...`}
+                  value={newComment}
+                  onChange={(e) => setNewComment(e.target.value)}
+                  className="min-h-[80px] text-sm"
+                />
+                <div className="flex gap-2">
+                  <Button
+                    size="sm"
+                    onClick={() => addComment(itemId, newComment, comment.id)}
+                    disabled={!newComment.trim()}
+                  >
+                    <PaperPlaneTilt size={14} className="mr-1" />
+                    Reply
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    onClick={() => {
+                      setReplyTo(null)
+                      setNewComment("")
+                    }}
+                  >
+                    Cancel
+                  </Button>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+        
+        {/* Render replies */}
+        {comment.replies && comment.replies.length > 0 && (
+          <div className="space-y-3">
+            {comment.replies.map((reply) => (
+              <CommentItem key={reply.id} comment={reply} isReply={true} />
+            ))}
+          </div>
+        )}
+      </div>
+    )
+
+    return (
+      <DialogContent className="max-w-2xl max-h-[600px] overflow-y-auto">
+        <DialogHeader>
+          <DialogTitle className="flex items-center gap-2">
+            <ChatCircle size={20} />
+            Comments
+          </DialogTitle>
+          <DialogDescription>
+            {itemTitle} • {getCommentCount(itemId)} {getCommentCount(itemId) === 1 ? 'comment' : 'comments'}
+          </DialogDescription>
+        </DialogHeader>
+        
+        <div className="space-y-6">
+          {/* New comment form */}
+          <div className="space-y-3">
+            <div className="flex items-center gap-2">
+              <Avatar className="w-8 h-8">
+                <AvatarImage src={userInfo?.avatarUrl} alt={userInfo?.login || 'Guest'} />
+                <AvatarFallback className="text-xs">
+                  {(userInfo?.login || 'Guest').split(' ').map((n: string) => n[0]).join('').toUpperCase().slice(0, 2)}
+                </AvatarFallback>
+              </Avatar>
+              <span className="text-sm font-medium">{userInfo?.login || 'Guest User'}</span>
+            </div>
+            <Textarea
+              placeholder="Share your thoughts..."
+              value={newComment}
+              onChange={(e) => setNewComment(e.target.value)}
+              className="min-h-[100px]"
+            />
+            <div className="flex justify-end">
+              <Button
+                onClick={() => addComment(itemId, newComment)}
+                disabled={!newComment.trim()}
+              >
+                <PaperPlaneTilt size={16} className="mr-2" />
+                Post Comment
+              </Button>
+            </div>
+          </div>
+
+          <Separator />
+          
+          {/* Comments list */}
+          <div className="space-y-6">
+            {itemComments.length === 0 ? (
+              <div className="text-center py-8 text-muted-foreground">
+                <ChatCircle size={48} className="mx-auto mb-4 opacity-50" />
+                <p>No comments yet. Be the first to share your thoughts!</p>
+              </div>
+            ) : (
+              itemComments.map((comment) => (
+                <CommentItem key={comment.id} comment={comment} />
+              ))
+            )}
+          </div>
+        </div>
+      </DialogContent>
+    )
+  }
 
   // Handle profile photo upload
   const handlePhotoUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -1109,6 +1415,27 @@ function App() {
                                   </a>
                                 </Button>
                               )}
+                              <Dialog 
+                                open={activeCommentsDialog === `project-${project.id}`}
+                                onOpenChange={(open) => setActiveCommentsDialog(open ? `project-${project.id}` : null)}
+                              >
+                                <DialogTrigger asChild>
+                                  <Button 
+                                    size="sm" 
+                                    variant="ghost" 
+                                    className="relative hover:bg-accent/50"
+                                    title={`${getCommentCount(`project-${project.id}`)} comments`}
+                                  >
+                                    <ChatCircle size={16} />
+                                    {getCommentCount(`project-${project.id}`) > 0 && (
+                                      <Badge className="absolute -top-1 -right-1 h-4 w-4 p-0 text-xs flex items-center justify-center">
+                                        {getCommentCount(`project-${project.id}`)}
+                                      </Badge>
+                                    )}
+                                  </Button>
+                                </DialogTrigger>
+                                <CommentsSection itemId={`project-${project.id}`} itemTitle={project.title} />
+                              </Dialog>
                               <Button 
                                 size="sm" 
                                 variant="ghost" 
@@ -1166,6 +1493,10 @@ function App() {
                                     <span>{project.forks}</span>
                                   </div>
                                 )}
+                                <div className="flex items-center gap-1">
+                                  <ChatCircle size={14} />
+                                  <span>{getCommentCount(`project-${project.id}`)}</span>
+                                </div>
                               </div>
                               {project.updatedAt && (
                                 <span className="text-xs">Updated {new Date(project.updatedAt).toLocaleDateString()}</span>
@@ -1254,13 +1585,36 @@ function App() {
                           <CardTitle className="font-heading mb-2">{article.title}</CardTitle>
                           <CardDescription className="text-base">{article.excerpt}</CardDescription>
                         </div>
-                        {article.pdfUrl && (
-                          <Button size="sm" variant="ghost" asChild>
-                            <a href={article.pdfUrl} target="_blank" rel="noopener noreferrer">
-                              <Download size={16} />
-                            </a>
-                          </Button>
-                        )}
+                        <div className="flex gap-2">
+                          {article.pdfUrl && (
+                            <Button size="sm" variant="ghost" asChild>
+                              <a href={article.pdfUrl} target="_blank" rel="noopener noreferrer">
+                                <Download size={16} />
+                              </a>
+                            </Button>
+                          )}
+                          <Dialog 
+                            open={activeCommentsDialog === `article-${article.id}`}
+                            onOpenChange={(open) => setActiveCommentsDialog(open ? `article-${article.id}` : null)}
+                          >
+                            <DialogTrigger asChild>
+                              <Button 
+                                size="sm" 
+                                variant="ghost" 
+                                className="relative hover:bg-accent/50"
+                                title={`${getCommentCount(`article-${article.id}`)} comments`}
+                              >
+                                <ChatCircle size={16} />
+                                {getCommentCount(`article-${article.id}`) > 0 && (
+                                  <Badge className="absolute -top-1 -right-1 h-4 w-4 p-0 text-xs flex items-center justify-center">
+                                    {getCommentCount(`article-${article.id}`)}
+                                  </Badge>
+                                )}
+                              </Button>
+                            </DialogTrigger>
+                            <CommentsSection itemId={`article-${article.id}`} itemTitle={article.title} />
+                          </Dialog>
+                        </div>
                       </div>
                     </CardHeader>
                     <CardContent>
@@ -1272,7 +1626,13 @@ function App() {
                             </Badge>
                           ))}
                         </div>
-                        <span className="text-muted-foreground text-sm">{article.publishDate}</span>
+                        <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                          <div className="flex items-center gap-1">
+                            <ChatCircle size={14} />
+                            <span>{getCommentCount(`article-${article.id}`)}</span>
+                          </div>
+                          <span>{article.publishDate}</span>
+                        </div>
                       </div>
                     </CardContent>
                   </Card>
