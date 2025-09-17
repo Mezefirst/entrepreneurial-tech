@@ -8,6 +8,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Separator } from "@/components/ui/separator"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import profilePhoto from "@/assets/images/profile-photo.svg"
 import { 
   GithubLogo, 
   ArrowUpRight, 
@@ -280,8 +281,8 @@ function App() {
           {/* About Section */}
           <TabsContent value="about" className="space-y-8">
             <div className="text-center space-y-6">
-              <Avatar className="w-32 h-32 mx-auto">
-                <AvatarImage src="/api/placeholder/300/300" alt="Profile" />
+              <Avatar className="w-32 h-32 mx-auto ring-4 ring-primary/20 ring-offset-4 ring-offset-background">
+                <AvatarImage src={profilePhoto} alt="Mesfinasfaw Zewge - Materials Science Engineer" />
                 <AvatarFallback className="text-2xl bg-primary text-primary-foreground">MZ</AvatarFallback>
               </Avatar>
               <div>

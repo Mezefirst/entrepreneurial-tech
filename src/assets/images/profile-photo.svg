@@ -1,0 +1,29 @@
+<svg width="300" height="300" viewBox="0 0 300 300" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:oklch(0.45 0.15 240);stop-opacity:1" />
+      <stop offset="100%" style="stop-color:oklch(0.55 0.12 290);stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Background circle -->
+  <circle cx="150" cy="150" r="150" fill="url(#bg)"/>
+  
+  <!-- Professional silhouette -->
+  <g transform="translate(150, 150)">
+    <!-- Head -->
+    <circle cx="0" cy="-30" r="35" fill="rgba(255,255,255,0.9)"/>
+    
+    <!-- Body/Shoulders -->
+    <path d="M -45 20 Q -45 0 -35 -5 Q -20 -15 0 -15 Q 20 -15 35 -5 Q 45 0 45 20 L 45 80 Q 45 90 35 90 L -35 90 Q -45 90 -45 80 Z" 
+          fill="rgba(255,255,255,0.9)"/>
+    
+    <!-- Subtle details for engineering theme -->
+    <circle cx="-15" cy="10" r="2" fill="rgba(255,255,255,0.6)"/>
+    <circle cx="15" cy="10" r="2" fill="rgba(255,255,255,0.6)"/>
+    <rect x="-8" y="15" width="16" height="2" rx="1" fill="rgba(255,255,255,0.6)"/>
+  </g>
+  
+  <!-- Professional border -->
+  <circle cx="150" cy="150" r="148" fill="none" stroke="rgba(255,255,255,0.3)" stroke-width="4"/>
+</svg>
